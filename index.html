@@ -27,6 +27,7 @@
             overflow: hidden;
             margin-top: 20px;
             position: relative;
+            background-color: #000;
         }
         .video-preview {
             position: absolute;
@@ -49,9 +50,24 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 20px;
+            display: block;
+            width: 100%;
+            text-align: center;
         }
         .btn:hover {
             background-color: #2563eb;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-group .btn {
+            flex: 1;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
         }
     </style>
 </head>
@@ -59,12 +75,18 @@
     <div class="container">
         <h1>КОЛЛАЖ ФОТО | ВИДЕО</h1>
         
+        <div id="loading" class="loading">
+            <p>Загрузка коллажа...</p>
+        </div>
+        
         <!-- Коллаж будет отображаться здесь -->
-        <div id="collageContainer" class="collage-container">
+        <div id="collageContainer" class="collage-container" style="display: none;">
             <!-- Здесь будет отображаться коллаж из параметров URL -->
         </div>
 
-        <button class="btn" onclick="downloadCollage()">Скачать коллаж</button>
+        <div class="btn-group">
+            <button class="btn" onclick="downloadCollage()">Скачать коллаж</button>
+        </div>
     </div>
 
     <script>
@@ -78,6 +100,11 @@
         // Создаем коллаж
         function createCollage() {
             const container = document.getElementById('collageContainer');
+            const loading = document.getElementById('loading');
+            
+            // Скрываем загрузку и показываем контейнер
+            loading.style.display = 'none';
+            container.style.display = 'block';
             container.innerHTML = '';
 
             // Пример: 2x2 сетка
@@ -97,7 +124,8 @@
                             div.style.height = `${cellHeight}%`;
                             div.style.left = `${c * cellWidth}%`;
                             div.style.top = `${r * cellHeight}%`;
-                            div.style.border = '1px solid #ccc';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            div.style.overflow = 'hidden';
 
                             if (item.type === 'photo') {
                                 const img = document.createElement('img');
@@ -109,9 +137,13 @@
                             } else {
                                 const video = document.createElement('video');
                                 video.src = item.url;
-                                video.controls = true;
+                                video.controls = false; // Не показываем controls для автоматического воспроизведения
+                                video.autoplay = true;
+                                video.loop = true;
+                                video.muted = true; // Автоматическое воспроизведение без звука
                                 video.style.width = '100%';
                                 video.style.height = '100%';
+                                video.style.objectFit = 'cover';
                                 div.appendChild(video);
                             }
                             container.appendChild(div);
@@ -119,6 +151,7 @@
                     }
                 }
             }
+            // Добавьте другие сетки по аналогии
         }
 
         // Загрузка коллажа
@@ -127,7 +160,10 @@
         }
 
         // Запуск создания коллажа
-        window.onload = createCollage;
+        window.onload = function() {
+            // Добавляем задержку для имитации загрузки
+            setTimeout(createCollage, 500);
+        };
     </script>
 </body>
 </html>
