@@ -69,11 +69,24 @@
             text-align: center;
             padding: 20px;
         }
+        .instructions {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>КОЛЛАЖ ФОТО | ВИДЕО</h1>
+        
+        <div class="instructions">
+            <p><strong>Как использовать:</strong></p>
+            <p>1. Загрузите фото и видео через Telegram-бота</p>
+            <p>2. После создания коллажа вы увидите его здесь</p>
+            <p>3. Используйте кнопку "Скачать" для сохранения</p>
+        </div>
         
         <div id="loading" class="loading">
             <p>Загрузка коллажа...</p>
@@ -84,9 +97,7 @@
             <!-- Здесь будет отображаться коллаж из параметров URL -->
         </div>
 
-        <div class="btn-group">
-            <button class="btn" onclick="downloadCollage()">Скачать коллаж</button>
-        </div>
+        <button class="btn" onclick="downloadCollage()">Скачать коллаж</button>
     </div>
 
     <script>
