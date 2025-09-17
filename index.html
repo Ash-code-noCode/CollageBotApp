@@ -173,7 +173,7 @@
             </div>
             <div class="grid-selection">
                 <div class="grid-item" data-grid="2x2">2x2</div>
-                <div class="grid-item" data-grid="3x3">3x3</div>
+                <div class="grid-item" data-grid="2x3">2x3</div>
                 <div class="grid-item" data-grid="3x1">3x1</div>
                 <div class="grid-item" data-grid="1x3">1x3</div>
                 <div class="grid-item" data-grid="2x1">2x1</div>
@@ -234,7 +234,7 @@
         function getRequiredCount(grid) {
             const counts = {
                 "2x2": 4,
-                "3x3": 9,
+                "2x3": 6,  // 2 столбца x 3 строки = 6 ячеек
                 "3x1": 3,
                 "1x3": 3,
                 "2x1": 2,
@@ -466,8 +466,8 @@
                         }
                     }
                 }
-            } else if (selectedGrid === "3x3") {
-                const cols = 3, rows = 3;
+            } else if (selectedGrid === "2x3") {
+                const cols = 2, rows = 3;
                 const cellWidth = 100 / cols;
                 const cellHeight = 100 / rows;
                 for (let r = 0; r < rows; r++) {
