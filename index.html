@@ -154,6 +154,14 @@
             color: white;
             font-size: 12px;
         }
+        .error-message {
+            color: #e53e3e;
+            text-align: center;
+            padding: 15px;
+            background-color: #fed7d7;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
     </style>
 </head>
 <body>
@@ -196,6 +204,7 @@
             </div>
             <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none;">
             <button class="btn" id="createCollageBtn" style="display:none;">Создать коллаж</button>
+            <div id="errorMessage" class="error-message" style="display:none;"></div>
         </div>
         <div id="step4" class="step-container">
             <div class="instructions">
@@ -332,19 +341,52 @@
             const files = event.target.files;
             uploadedFiles = Array.from(files);
             originalFiles = [...uploadedFiles]; // Сохраняем оригинальные файлы
+            
+            // Проверяем, не превышено ли максимальное количество файлов
+            const maxFiles = requiredCount * 2; // Максимум в 2 раза больше требуемого
+            if (uploadedFiles.length > maxFiles) {
+                showError(`Вы загрузили слишком много файлов (${uploadedFiles.length}). Максимум ${maxFiles} файлов.`);
+                document.getElementById('createCollageBtn').style.display = 'none';
+                return;
+            }
+            
+            // Очищаем ошибку
+            hideError();
+            
             // Обновляем счетчик
             const currentCountElement = document.getElementById('currentCount');
             if (currentCountElement) {
                 currentCountElement.textContent = uploadedFiles.length;
             }
+            
             // Показываем кнопку "Создать коллаж" если файлов достаточно
             if (uploadedFiles.length >= requiredCount) {
                 document.getElementById('createCollageBtn').style.display = 'block';
+            } else {
+                document.getElementById('createCollageBtn').style.display = 'none';
             }
         });
         
+        // Функция отображения ошибки
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        // Функция скрытия ошибки
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
         // Обработчик создания коллажа
         document.getElementById('createCollageBtn').addEventListener('click', function() {
+            // Проверяем количество файлов
+            if (uploadedFiles.length > requiredCount) {
+                showError(`Упс, вы загрузили слишком много файлов (${uploadedFiles.length}). Пожалуйста, загрузите не более ${requiredCount} файлов.`);
+                return;
+            }
+            
             if (uploadedFiles.length >= requiredCount) {
                 // Показываем загрузку
                 document.getElementById('loading').style.display = 'block';
@@ -410,6 +452,17 @@
                                 div.appendChild(video);
                             }
                             preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            preview.appendChild(div);
                         }
                     }
                 }
@@ -449,6 +502,17 @@
                                 video.style.objectFit = 'cover';
                                 div.appendChild(video);
                             }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
                             preview.appendChild(div);
                         }
                     }
@@ -490,6 +554,17 @@
                                 div.appendChild(video);
                             }
                             preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            preview.appendChild(div);
                         }
                     }
                 }
@@ -529,6 +604,17 @@
                                 video.style.objectFit = 'cover';
                                 div.appendChild(video);
                             }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
                             preview.appendChild(div);
                         }
                     }
@@ -570,6 +656,17 @@
                                 div.appendChild(video);
                             }
                             preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            preview.appendChild(div);
                         }
                     }
                 }
@@ -609,6 +706,17 @@
                                 video.style.objectFit = 'cover';
                                 div.appendChild(video);
                             }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
                             preview.appendChild(div);
                         }
                     }
@@ -650,6 +758,17 @@
                                 video.style.objectFit = 'cover';
                                 div.appendChild(video);
                             }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
                             preview.appendChild(div);
                         }
                     }
@@ -701,6 +820,8 @@
             document.getElementById('requiredCount').textContent = '4';
             document.getElementById('createCollageBtn').style.display = 'none';
             document.getElementById('collagePreview').innerHTML = '';
+            // Очищаем ошибку
+            hideError();
             // Возврат к первому шагу
             showStep(1);
         }
