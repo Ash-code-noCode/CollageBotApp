@@ -667,16 +667,19 @@
         
         // Функция скачивания коллажа
         function downloadCollage() {
-            // В реальной реализации здесь будет вызов сервера для скачивания
-            // Для демонстрации просто показываем сообщение
-            alert("В реальной версии файл будет скачан. Сейчас это демо-версия.");
-            // Если бы был реальный URL, мы бы использовали:
-            // const link = document.createElement('a');
-            // link.href = collageUrl;
-            // link.download = 'collage.mp4';
-            // document.body.appendChild(link);
-            // link.click();
-            // document.body.removeChild(link);
+            // Проверяем, есть ли URL коллажа
+            if (collageUrl) {
+                // Создаем временную ссылку для скачивания
+                const link = document.createElement('a');
+                link.href = collageUrl;
+                link.download = 'collage.mp4';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                // Если URL еще не доступен, показываем сообщение
+                alert("Коллаж еще не создан. Пожалуйста, создайте коллаж перед скачиванием.");
+            }
         }
         
         // Функция нового коллажа
