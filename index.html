@@ -189,7 +189,7 @@
                         <line x1="0" y1="50" x2="100" y2="50" stroke="#000" stroke-width="1"/>
                     </svg>
                 </div>
-
+                
                 <!-- 2x3 -->
                 <div class="grid-item" data-grid="2x3">
                     <svg class="grid-image" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
@@ -199,7 +199,7 @@
                         <line x1="0" y1="100" x2="100" y2="100" stroke="#000" stroke-width="1"/>
                     </svg>
                 </div>
-
+                
                 <!-- 3x1 -->
                 <div class="grid-item" data-grid="3x1">
                     <svg class="grid-image" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
@@ -208,7 +208,7 @@
                         <line x1="0" y1="100" x2="100" y2="100" stroke="#000" stroke-width="1"/>
                     </svg>
                 </div>
-
+                
                 <!-- 1x3 -->
                 <div class="grid-item" data-grid="1x3">
                     <svg class="grid-image" viewBox="0 0 150 100" xmlns="http://www.w3.org/2000/svg">
@@ -217,7 +217,7 @@
                         <line x1="100" y1="0" x2="100" y2="100" stroke="#000" stroke-width="1"/>
                     </svg>
                 </div>
-
+                
                 <!-- 2x1 -->
                 <div class="grid-item" data-grid="2x1">
                     <svg class="grid-image" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
@@ -225,7 +225,7 @@
                         <line x1="0" y1="75" x2="100" y2="75" stroke="#000" stroke-width="1"/>
                     </svg>
                 </div>
-
+                
                 <!-- 1x2 -->
                 <div class="grid-item" data-grid="1x2">
                     <svg class="grid-image" viewBox="0 0 150 100" xmlns="http://www.w3.org/2000/svg">
@@ -284,7 +284,7 @@
         let requiredCount = 4;
         let originalFiles = []; // Для сохранения оригинальных файлов при изменении размера
         let collageUrl = ''; // Для хранения URL коллажа
-
+        
         // Функция для расчета необходимого количества файлов
         function getRequiredCount(grid) {
             const counts = {
@@ -297,7 +297,7 @@
             };
             return counts[grid] || 4;
         }
-
+        
         // Функция для получения параметров из URL
         function getUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -307,7 +307,7 @@
                 media: urlParams.get('media')
             };
         }
-
+        
         // Автоматическое заполнение полей при загрузке страницы
         window.addEventListener('load', function() {
             const params = getUrlParams();
@@ -340,7 +340,7 @@
                 }
             }
         });
-
+        
         // Функция для перехода между шагами
         function showStep(stepNumber) {
             // Скрыть все шаги
@@ -350,7 +350,7 @@
             // Показать нужный шаг
             document.getElementById('step' + stepNumber).classList.add('active');
         }
-
+        
         // Обработчики для выбора сетки
         document.querySelectorAll('.grid-item').forEach(item => {
             item.addEventListener('click', () => {
@@ -360,7 +360,7 @@
                 document.getElementById('nextStep1').style.display = 'block';
             });
         });
-
+        
         // Обработчики для кнопки "Далее" после выбора сетки
         document.getElementById('nextStep1').addEventListener('click', () => {
             if (selectedGrid) {
@@ -369,7 +369,7 @@
                 showStep(2);
             }
         });
-
+        
         // Обработчики для выбора размера
         document.querySelectorAll('.size-item').forEach(item => {
             item.addEventListener('click', () => {
@@ -379,24 +379,24 @@
                 document.getElementById('nextStep2').style.display = 'block';
             });
         });
-
+        
         // Обработчики для кнопки "Далее" после выбора размера
         document.getElementById('nextStep2').addEventListener('click', () => {
             if (selectedSize) {
                 showStep(3);
             }
         });
-
+        
         // Обработчик загрузки файлов
         document.getElementById('uploadArea').addEventListener('click', () => {
             document.getElementById('fileInput').click();
         });
-
+        
         document.getElementById('fileInput').addEventListener('change', function(event) {
             const files = event.target.files;
             uploadedFiles = Array.from(files);
             originalFiles = [...uploadedFiles]; // Сохраняем оригинальные файлы
-
+            
             // Проверяем, не превышено ли максимальное количество файлов
             const maxFiles = requiredCount * 2; // Максимум в 2 раза больше требуемого
             if (uploadedFiles.length > maxFiles) {
@@ -404,16 +404,16 @@
                 document.getElementById('createCollageBtn').style.display = 'none';
                 return;
             }
-
+            
             // Очищаем ошибку
             hideError();
-
+            
             // Обновляем счетчик
             const currentCountElement = document.getElementById('currentCount');
             if (currentCountElement) {
                 currentCountElement.textContent = uploadedFiles.length;
             }
-
+            
             // Показываем кнопку "Создать коллаж" если файлов достаточно
             if (uploadedFiles.length >= requiredCount) {
                 document.getElementById('createCollageBtn').style.display = 'block';
@@ -421,19 +421,19 @@
                 document.getElementById('createCollageBtn').style.display = 'none';
             }
         });
-
+        
         // Функция отображения ошибки
         function showError(message) {
             const errorElement = document.getElementById('errorMessage');
             errorElement.textContent = message;
             errorElement.style.display = 'block';
         }
-
+        
         // Функция скрытия ошибки
         function hideError() {
             document.getElementById('errorMessage').style.display = 'none';
         }
-
+        
         // Обработчик создания коллажа
         document.getElementById('createCollageBtn').addEventListener('click', function() {
             // Проверяем количество файлов
@@ -441,11 +441,11 @@
                 showError(`Упс, вы загрузили слишком много файлов (${uploadedFiles.length}). Пожалуйста, загрузите не более ${requiredCount} файлов.`);
                 return;
             }
-
+            
             if (uploadedFiles.length >= requiredCount) {
                 // Показываем загрузку
                 document.getElementById('loading').style.display = 'block';
-
+                
                 // Симуляция отправки на сервер
                 setTimeout(() => {
                     // Скрываем загрузку
@@ -457,18 +457,18 @@
                 }, 2000);
             }
         });
-
+        
         // Функция отображения коллажа
         function displayCollage() {
             const preview = document.getElementById('collagePreview');
             preview.innerHTML = '';
-
+            
             // Проверяем, что у нас есть файлы
             if (!uploadedFiles || uploadedFiles.length === 0) {
                 preview.innerHTML = '<p style="text-align:center; color:red;">Нет файлов для отображения</p>';
                 return;
             }
-
+            
             // Создаем сетку в зависимости от выбранной сетки
             if (selectedGrid === "2x2") {
                 const cols = 2, rows = 2;
@@ -830,7 +830,7 @@
                 }
             }
         }
-
+        
         // Функция изменения размера
         function changeSize() {
             // Сохраняем текущие файлы для использования при новом размере
@@ -838,7 +838,7 @@
             // Возвращаемся к выбору размера
             showStep(2);
         }
-
+        
         // Функция скачивания коллажа
         function downloadCollage() {
             // Проверяем, есть ли URL коллажа
@@ -855,7 +855,7 @@
                 alert("Коллаж еще не создан. Пожалуйста, создайте коллаж перед скачиванием.");
             }
         }
-
+        
         // Функция нового коллажа
         function newCollage() {
             // Сброс данных
@@ -880,7 +880,7 @@
             // Возврат к первому шагу
             showStep(1);
         }
-
+        
         // Инициализация
         showStep(1);
     </script>
