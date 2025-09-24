@@ -47,7 +47,7 @@
             margin-bottom: 15px;
         }
         .grid-option, .size-option {
-            padding: 10px;
+            padding: 8px; /* Уменьшили отступы */
             border: 2px solid #ccc;
             cursor: pointer;
             text-align: center;
@@ -56,6 +56,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 70px; /* Фиксированная ширина для всех опций */
+            height: 70px; /* Фиксированная высота для всех опций */
         }
         .grid-option.selected, .size-option.selected {
             border-color: #1583A3;
@@ -63,16 +65,16 @@
             color: white;
         }
         .grid-icon {
-            width: 60px;
-            height: 60px;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .grid-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+            width: 40px; /* Уменьшили размер изображения */
+            height: 40px; /* Уменьшили размер изображения */
+            object-fit: contain; /* Обеспечиваем корректное масштабирование */
         }
         .upload-area {
             border: 2px dashed #ccc;
@@ -137,32 +139,32 @@
                 <!-- Вставьте здесь пути к вашим файлам изображений сеток -->
                 <div class="grid-option" data-grid="2x2">
                     <div class="grid-icon">
-                        <img src="grid_2x2.png" alt="Сетка 2x2" width="60" height="60">
+                        <img src="grid_2x2.png" alt="Сетка 2x2" width="40" height="40">
                     </div>
                 </div>
                 <div class="grid-option" data-grid="2x3">
                     <div class="grid-icon">
-                        <img src="grid_2x3.png" height="60" width="60"/>
+                        <img src="grid_2x3.png" alt="Сетка 2x3" width="40" height="40">
                     </div>
                 </div>
                 <div class="grid-option" data-grid="3x1">
                     <div class="grid-icon">
-                        <img src="grid_3x1.png" height="60" width="60"/>
+                        <img src="grid_3x1.png" alt="Сетка 3x1" width="40" height="40">
                     </div>
                 </div>
                 <div class="grid-option" data-grid="1x3">
                     <div class="grid-icon">
-                        <img src="grid_1x3.png" height="60" width="60"/>
+                        <img src="grid_1x3.png" alt="Сетка 1x3" width="40" height="40">
                     </div>
                 </div>
                 <div class="grid-option" data-grid="2x1">
                     <div class="grid-icon">
-                        <img src="grid_2x1.png" height="60" width="60"/>
+                        <img src="grid_2x1.png" alt="Сетка 2x1" width="40" height="40">
                     </div>
                 </div>
                 <div class="grid-option" data-grid="1x2">
                     <div class="grid-icon">
-                        <img src="grid_1x2.png" height="60" width="60"/>
+                        <img src="grid_1x2.png" alt="Сетка 1x2" width="40" height="40">
                     </div>
                 </div>
             </div>
