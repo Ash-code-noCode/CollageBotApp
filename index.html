@@ -6,218 +6,167 @@
     <title>Создание коллажа</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Unbounded', sans-serif;
+            color: #145569;
+            margin: 0;
             padding: 20px;
             background-color: #f5f5f5;
-            color: #333;
         }
-
         .container {
             max-width: 600px;
             margin: 0 auto;
         }
-
         .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-
         .header h1 {
             margin: 0;
-            color: #2c3e50;
+            color: #145569;
         }
-
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin-left: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
         .logo img {
-            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-
         .settings {
             margin-bottom: 20px;
         }
-
-        h3 {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            color: #2c3e50;
-        }
-
-        .grid-selector,
-        .size-selector {
+        .grid-selector, .size-selector {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 15px;
         }
-
-        .grid-option,
-        .size-option {
-            padding: 8px 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        .grid-option, .size-option {
+            padding: 8px;
+            border: 2px solid #ccc;
             cursor: pointer;
-            background-color: white;
-            transition: background-color 0.2s;
+            text-align: center;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+        .grid-option.selected, .size-option.selected {
+            border-color: #1583A3;
+            background-color: #1583A3;
+            color: white;
+        }
+        .grid-icon {
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-
-        .grid-option.selected,
-        .size-option.selected {
-            background-color: #3498db;
-            color: white;
-            border-color: #2980b9;
-        }
-
         .grid-icon img {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: 4px;
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            max-width: 100%;
+            max-height: 100%;
         }
-
         .upload-area {
-            padding: 20px;
             border: 2px dashed #ccc;
-            border-radius: 8px;
+            padding: 20px;
             text-align: center;
-            cursor: pointer;
-            background-color: #fafafa;
             margin-bottom: 20px;
+            border-radius: 5px;
+            cursor: pointer;
         }
-
         .upload-area:hover {
-            border-color: #3498db;
-            background-color: #eaf2f8;
+            border-color: #1583A3;
         }
-
         .file-list {
             margin-bottom: 20px;
         }
-
         .file-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
+            padding: 5px;
+            background-color: #eee;
             margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #f9f9f9;
-        }
-
-        .file-item img.preview {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-
-        .file-item .video-icon {
-            width: 40px;
-            height: 40px;
-            background-color: #333;
-            color: white;
+            border-radius: 3px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            margin-right: 10px;
-            font-size: 16px;
         }
-
-        .file-item span {
-            flex-grow: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .file-item button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            margin-left: 10px;
-            color: #e74c3c;
-        }
-
         .create-button {
-            width: 100%;
-            padding: 12px;
-            background-color: #2980b9;
+            width: 65%;
+            padding: 15px;
+            background-color: #1583A3;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 15px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            margin: 0 auto;
+            display: block;
         }
-
         .create-button:hover {
-            background-color: #2471a3;
+            background-color: #126a80;
         }
-
-        .create-button:disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
-        }
-
         .progress {
             display: none;
-            text-align: center;
-            padding: 20px;
-            background-color: #ecf0f1;
-            border-radius: 8px;
             margin-top: 20px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
-
         <div class="header">
             <h1>Настройки коллажа</h1>
-            <!-- Вставьте здесь путь к вашему файлу логотипа -->
+
             <div class="logo">
-                <img src="logo.png" alt="Логотип" width="50" height="50">
+              <img src="https://github.com/Ash-code-noCode/CollageBotApp/blob/main/logo.png" alt="Логотип" width="50" height="50">
             </div>
         </div>
 
         <div class="settings">
             <h3>Выберите сетку:</h3>
             <div class="grid-selector">
-                <!-- Вставьте здесь пути к вашим файлам изображений сеток -->
+
                 <div class="grid-option" data-grid="2x2">
                     <div class="grid-icon">
-                        <img src="grid_2x2.png" alt="Сетка 2x2" width="40" height="40">
+                        <img src="https://github.com/Ash-code-noCode/CollageBotApp/blob/main/grid_2x2.png" alt="Сетка 2x2" width="50" height="50">
                     </div>
                 </div>
                 <div class="grid-option" data-grid="2x3">
                     <div class="grid-icon">
-                        <img src="grid_2x3.png" alt="Сетка 2x3" width="40" height="40">
+                        <img src="https://github.com/Ash-code-noCode/CollageBotApp/blob/main/grid_2x3.png" alt="Сетка 2x3" width="50" height="50">
                     </div>
                 </div>
                 <div class="grid-option" data-grid="3x1">
                     <div class="grid-icon">
-                        <img src="grid_3x1.png" alt="Сетка 3x1" width="40" height="40">
+                        <img src="https://github.com/Ash-code-noCode/CollageBotApp/blob/main/grid_3x1.png" alt="Сетка 3x1" width="50" height="50">
                     </div>
                 </div>
                 <div class="grid-option" data-grid="1x3">
                     <div class="grid-icon">
-                        <img src="grid_1x3.png" alt="Сетка 1x3" width="40" height="40">
+                        <img src="https://github.com/Ash-code-noCode/CollageBotApp/blob/main/grid_1x3.png" alt="Сетка 1x3" width="50" height="50">
                     </div>
                 </div>
                 <div class="grid-option" data-grid="2x1">
                     <div class="grid-icon">
-                        <img src="grid_2x1.png" alt="Сетка 2x1" width="40" height="40">
+                        <img src="https://github.com/Ash-code-noCode/CollageBotApp/blob/main/grid_2x1.png" alt="Сетка 2x1" width="50" height="50">
                     </div>
                 </div>
                 <div class="grid-option" data-grid="1x2">
                     <div class="grid-icon">
-                        <img src="grid_1x2.png" alt="Сетка 1x2" width="40" height="40">
+                        <img src="https://github.com/Ash-code-noCode/CollageBotApp/blob/main/grid_1x2.png" alt="Сетка 1x2" width="50" height="50">
                     </div>
                 </div>
             </div>
@@ -246,7 +195,6 @@
         <div class="progress" id="progress">
             <p>Создаем коллаж...</p>
         </div>
-
     </div>
 
     <script>
@@ -315,33 +263,15 @@
             files.forEach((file, index) => {
                 const fileItem = document.createElement('div');
                 fileItem.className = 'file-item';
+                fileItem.textContent = `${index + 1}. ${file.name}`;
 
-                // Превью для изображений
-                if (file.type.startsWith('image/')) {
-                    const imgPreview = document.createElement('img');
-                    imgPreview.src = URL.createObjectURL(file);
-                    imgPreview.className = 'preview';
-                    fileItem.appendChild(imgPreview);
-                } else if (file.type.startsWith('video/')) {
-                    // Иконка для видео
-                    const videoIcon = document.createElement('div');
-                    videoIcon.className = 'video-icon';
-                    videoIcon.textContent = '🎥';
-                    fileItem.appendChild(videoIcon);
-                }
-
-                // Текстовое имя файла
-                const fileName = document.createElement('span');
-                fileName.textContent = file.name;
-                fileName.style.flexGrow = '1';
-                fileName.style.overflow = 'hidden';
-                fileName.style.text-overflow = 'ellipsis';
-                fileName.style.whiteSpace = 'nowrap';
-                fileItem.appendChild(fileName);
-
-                // Кнопка удаления
+                // Добавляем кнопку удаления
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = '✖';
+                deleteBtn.style.marginLeft = '10px';
+                deleteBtn.style.background = 'none';
+                deleteBtn.style.border = 'none';
+                deleteBtn.style.cursor = 'pointer';
                 deleteBtn.onclick = function() {
                     files.splice(index, 1);
                     updateFileList();
@@ -372,15 +302,31 @@
                 formData.append('grid', selectedGrid);
                 formData.append('size', selectedSize);
 
-                // Добавляем файлы
+                // Преобразуем файлы в URL и отправляем
+                const mediaData = [];
                 for (let i = 0; i < files.length; i++) {
-                    formData.append(`file${i}`, files[i]);
+                    const file = files[i];
+                    const fileType = file.type.startsWith('image/') ? 'photo' : 'video';
+
+                    // Создаем URL для файла
+                    const fileUrl = URL.createObjectURL(file);
+                    mediaData.push({
+                        url: fileUrl,
+                        type: fileType
+                    });
                 }
 
                 // Отправляем запрос на сервер
                 const response = await fetch('https://your-server-domain.com/create-collage', { // Замените на ваш домен
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        grid: selectedGrid,
+                        size: selectedSize,
+                        media: mediaData
+                    })
                 });
 
                 const result = await response.json();
@@ -390,9 +336,10 @@
                     window.Telegram.WebApp.close();
 
                     // В реальном проекте здесь нужно отправить сообщение в чат бота
+                    // Например, через API Telegram Bot
                     console.log('Коллаж успешно создан:', result.url);
 
-                    // Для демонстрации — alert
+                    // Для демонстрации можно использовать alert
                     alert('Коллаж успешно создан! Результат будет отправлен в чат бота.');
 
                 } else {
@@ -407,6 +354,5 @@
             }
         }
     </script>
-
 </body>
 </html>
