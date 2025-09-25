@@ -203,7 +203,7 @@
         </div>
         <div class="upload-area" id="uploadArea">
             <p>Загрузите фото и/или видео:</p>
-            <p id="fileCount">загружено 0/2 файлов</p>
+            <p id="fileCount">загружено 0/4 файлов</p>
         </div>
         <div class="file-list" id="fileList"></div>
         <button class="create-button" id="createButton">СОЗДАТЬ КОЛЛАЖ</button>
@@ -216,7 +216,15 @@
         let selectedGrid = '2x2';
         let selectedSize = '9:16';
         let files = [];
-        const MAX_FILES = 2;
+        // Маппинг количества файлов для каждой сетки
+        const gridFileCounts = {
+            '2x2': 4,      // 2x2 сетка требует 4 файла
+            '2x3': 6,      // 2x3 сетка требует 6 файлов
+            '3x1': 3,      // 3x1 сетка требует 3 файла
+            '1x3': 3,      // 1x3 сетка требует 3 файла
+            '2x1': 2,      // 2x1 сетка требует 2 файла
+            '1x2': 2       // 1x2 сетка требует 2 файла
+        };
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             // Настройка выбора сетки
@@ -225,6 +233,8 @@
                     document.querySelectorAll('.grid-option').forEach(o => o.classList.remove('selected'));
                     this.classList.add('selected');
                     selectedGrid = this.getAttribute('data-grid');
+                    // Обновляем счетчик файлов
+                    updateFileCounter();
                 });
             });
             // Настройка выбора размера
@@ -244,19 +254,24 @@
                 input.accept = 'image/*,video/*';
                 input.onchange = function(e) {
                     const newFiles = Array.from(e.target.files);
+                    // Получаем максимальное количество файлов для выбранной сетки
+                    const maxFiles = gridFileCounts[selectedGrid] || 4;
                     // Проверяем количество файлов
-                    if (files.length + newFiles.length > MAX_FILES) {
-                        alert(`Вы можете загрузить максимум ${MAX_FILES} файлов.`);
+                    if (files.length + newFiles.length > maxFiles) {
+                        alert(`Для выбранной сетки ${selectedGrid} требуется максимум ${maxFiles} файлов.`);
                         return;
                     }
                     // Добавляем новые файлы
                     files = [...files, ...newFiles];
                     updateFileList();
+                    updateFileCounter();
                 };
                 input.click();
             });
-            // Настройка кнопки создания коллажа
-            document.getElementById('createButton').addEventListener('click', createCollage);
+            // Инициализируем первый выбранный элемент
+            document.querySelector('.grid-option').classList.add('selected');
+            // Инициализируем счетчик
+            updateFileCounter();
         });
         // Обновление списка файлов
         function updateFileList() {
@@ -279,17 +294,30 @@
                 deleteBtn.onclick = function() {
                     files.splice(index, 1);
                     updateFileList();
+                    updateFileCounter();
                 };
                 fileItem.appendChild(deleteBtn);
                 fileList.appendChild(fileItem);
             });
             // Обновление счетчика
-            fileCount.textContent = `загружено ${files.length}/${MAX_FILES} файлов`;
+            updateFileCounter();
+        }
+        // Обновление счетчика файлов
+        function updateFileCounter() {
+            const fileCount = document.getElementById('fileCount');
+            const maxFiles = gridFileCounts[selectedGrid] || 4;
+            fileCount.textContent = `загружено ${files.length}/${maxFiles} файлов`;
         }
         // Создание коллажа
         async function createCollage() {
             if (files.length === 0) {
                 alert('Пожалуйста, загрузите хотя бы один файл.');
+                return;
+            }
+            // Проверяем, достаточно ли файлов для выбранной сетки
+            const requiredFiles = gridFileCounts[selectedGrid] || 4;
+            if (files.length < requiredFiles) {
+                alert(`Для сетки ${selectedGrid} требуется минимум ${requiredFiles} файла(ов).`);
                 return;
             }
             // Показываем индикатор прогресса
