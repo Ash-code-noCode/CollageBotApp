@@ -46,9 +46,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        /* Отдельные стили для блоков сеток */
+        .grid-option {
             width: 70px;
             height: 70px;
+            font-size: 14px;
         }
+
+        /* Отдельные стили для блоков размеров */
+        .size-option {
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+        }
+        
+        
         .grid-option.selected, .size-option.selected {
             border-color: #1583A3;
             background-color: #1583A3;
@@ -62,8 +76,8 @@
             justify-content: center;
         }
         .grid-icon svg {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             fill: none;
             stroke: #1583A3;
             stroke-width: 1.5; /* Тоньше линии */
@@ -270,6 +284,7 @@
             });
             // Инициализируем первый выбранный элемент
             document.querySelector('.grid-option').classList.add('selected');
+            document.querySelector('.size-option').classList.add('selected');
             // Инициализируем счетчик
             updateFileCounter();
         });
