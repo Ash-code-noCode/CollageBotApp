@@ -191,7 +191,7 @@
         .action-button:hover {
             background-color: #126a80;
         }
-        /* Новая кнопка "Новый коллаж" */
+        /* Новая кнопка "Новый коллаж" с нужными стилями */
         .new-collage-button {
             width: 100%;
             padding: 15px;
@@ -479,12 +479,15 @@
                     console.log('Коллаж успешно создан');
                     // Показываем результат в мини-приложении
                     showResult(result.url);
-                    // Отправляем данные в бота (если работаем в Telegram Mini App)
+                    // Отправляем результат в бота (если работаем в Telegram Mini App)
                     if (window.Telegram && window.Telegram.WebApp) {
-                        window.Telegram.WebApp.sendData(`webapp_${JSON.stringify({
-                            type: 'collage_result',
-                            url: result.url
-                        })}`);
+                        // УБРАЛИ: window.Telegram.WebApp.sendData(...)
+                        // Мы не отправляем данные в бота через sendData при прямом запуске в браузере
+                        // Только если работает в Telegram Mini App
+                    }
+                    // Для тестирования в браузере
+                    if (!window.Telegram || !window.Telegram.WebApp) {
+                        alert(`Коллаж готов! Скачать: ${result.url}`);
                     }
                 } else {
                     throw new Error(result.message || 'Ошибка создания коллажа');
