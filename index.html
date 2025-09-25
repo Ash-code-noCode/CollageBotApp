@@ -156,7 +156,7 @@
             object-fit: cover;
         }
         .download-button {
-            width: 100%;
+            width: 65%;
             padding: 15px;
             background-color: #1583A3;
             color: white;
@@ -166,6 +166,8 @@
             font-size: 18px;
             font-weight: bold;
             transition: background-color 0.3s ease;
+            margin: 0 auto;
+            display: block;
         }
         .download-button:hover {
             background-color: #126a80;
@@ -173,11 +175,11 @@
         .action-buttons {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 3px;
+            margin-top: -5px;
         }
         .action-button {
-            width: 100%;
+            width: 65%;
             padding: 15px;
             background-color: #1583A3;
             color: white;
@@ -187,34 +189,126 @@
             font-size: 18px;
             font-weight: bold;
             transition: background-color 0.3s ease;
+            margin: 0 auto;
+            display: block;
         }
         .action-button:hover {
             background-color: #126a80;
         }
-        /* Новая кнопка "Новый коллаж" с нужными стилями */
-        .new-collage-button {
-            width: 100%;
-            padding: 15px;
-            background-color: #1583A3;
-            color: #145569;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            font-family: 'Unbounded', sans-serif;
-            transition: background-color 0.3s ease;
+        .step-container {
+            display: none;
         }
-        .new-collage-button:hover {
-            background-color: #126a80;
+        .active {
+            display: block;
+        }
+        .error-message {
+            color: #e53e3e;
+            text-align: center;
+            padding: 15px;
+            background-color: #fed7d7;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .file-count {
+            text-align: center;
+            font-weight: bold;
+            color: #2d3748;
+            margin: 10px 0;
+        }
+        .collage-preview {
+            width: 100%;
+            aspect-ratio: 9/16;
+            border: 1px solid #ddd;
+            overflow: hidden;
+            margin-top: 20px;
+            position: relative;
+            background-color: #000;
+        }
+        .video-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .video-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .grid-preview {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .grid-cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ccc;
+            background-color: #eee;
+        }
+        .grid-cell.video {
+            background-color: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .grid-cell.photo {
+            background-color: #4ade80;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        /* Стили для изображений сетки */
+        .grid-image {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            background-color: transparent;
+        }
+        .instructions {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .step-container {
+            margin-bottom: 20px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .step-header {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .step-header h3 {
+            margin: 0;
+            color: #145569;
+        }
+
+        /* Добавленные стили для кнопок с двумя строками расстояния */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1em; /* Два пробела между кнопками */
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Настройки коллажа</h1>
+            <h1>Создание коллажа</h1>
         </div>
+
         <div class="settings">
             <h3>Выберите сетку:</h3>
             <div class="grid-selector">
@@ -278,6 +372,7 @@
                 </div>
             </div>
         </div>
+
         <div class="settings">
             <h3>Выберите размер:</h3>
             <div class="size-selector">
@@ -288,30 +383,39 @@
                 <div class="size-option" data-size="16:9">16:9</div>
             </div>
         </div>
+
         <div class="upload-area" id="uploadArea">
             <p>Загрузите фото и/или видео:</p>
             <p id="fileCount">загружено 0/4 файлов</p>
         </div>
         <div class="file-list" id="fileList"></div>
-        <button class="create-button" id="createButton">СОЗДАТЬ КОЛЛАЖ</button>
-        <div class="progress" id="progress">
-            <p>Создаем коллаж...</p>
+        <button class="create-button" id="createCollageBtn" style="display:none;">СОЗДАТЬ КОЛЛАЖ</button>
+        <div class="error-message" id="errorMessage" style="display:none;"></div>
+        <div id="loading" class="loading" style="display:none;">
+            <p>Создаем коллаж, скоро всё будет!</p>
         </div>
         <!-- Результат -->
-        <div class="result-container" id="resultContainer">
-            <div class="result-message">Коллаж создан!</div>
-            <div class="collage-grid" id="collageGrid"></div>
-            <div class="action-buttons">
-                <button class="action-button" id="downloadButton">Скачать коллаж</button>
-                <button class="new-collage-button" id="newCollageButton">Новый коллаж</button>
+        <div id="step4" class="step-container">
+            <div class="instructions">
+                <p><strong>Коллаж создан!</strong></p>
+            </div>
+            <div class="collage-preview" id="collagePreview"><!-- Здесь будет отображаться коллаж --></div>
+            <div class="button-container">
+                <button class="action-button" onclick="downloadCollage()">Скачать коллаж</button>
+                <button class="action-button" onclick="newCollage()">Новый коллаж</button>
             </div>
         </div>
     </div>
+
     <script>
-        // Глобальные переменные
-        let selectedGrid = '2x2';
-        let selectedSize = '9:16';
-        let files = [];
+        // Переменные для хранения данных
+        let selectedGrid = '';
+        let selectedSize = '';
+        let uploadedFiles = [];
+        let requiredCount = 4;
+        let originalFiles = []; // Для сохранения оригинальных файлов при изменении размера
+        let collageUrl = ''; // Для хранения URL коллажа
+
         // Маппинг количества файлов для каждой сетки
         const gridFileCounts = {
             '2x2': 4,
@@ -321,276 +425,607 @@
             '2x1': 2,
             '1x2': 2
         };
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM загружен');
-            // Настройка выбора сетки
-            document.querySelectorAll('.grid-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    console.log('Выбрана сетка:', this.getAttribute('data-grid'));
-                    document.querySelectorAll('.grid-option').forEach(o => o.classList.remove('selected'));
-                    this.classList.add('selected');
-                    selectedGrid = this.getAttribute('data-grid');
-                    updateFileCounter();
-                });
-            });
-            // Настройка выбора размера
-            document.querySelectorAll('.size-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    console.log('Выбран размер:', this.getAttribute('data-size'));
-                    document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
-                    this.classList.add('selected');
-                    selectedSize = this.getAttribute('data-size');
-                });
-            });
-            // Настройка области загрузки
-            const uploadArea = document.getElementById('uploadArea');
-            uploadArea.addEventListener('click', function() {
-                console.log('Нажата область загрузки');
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.multiple = true;
-                input.accept = 'image/*,video/*';
-                input.onchange = function(e) {
-                    console.log('Выбраны файлы:', e.target.files.length);
-                    const newFiles = Array.from(e.target.files);
-                    const maxFiles = gridFileCounts[selectedGrid] || 4;
-                    if (files.length + newFiles.length > maxFiles) {
-                        alert(`Для выбранной сетки ${selectedGrid} требуется максимум ${maxFiles} файлов.`);
-                        return;
-                    }
-                    files = [...files, ...newFiles];
-                    updateFileList();
-                    updateFileCounter();
-                };
-                input.click();
-            });
-            // Привязка кнопки создания коллажа
-            const createButton = document.getElementById('createButton');
-            createButton.addEventListener('click', createCollage);
-            console.log('Кнопка создания коллажа привязана');
-            // Инициализируем первый выбранный элемент
-            document.querySelector('.grid-option').classList.add('selected');
-            document.querySelector('.size-option').classList.add('selected');
-            // Инициализируем счетчик
-            updateFileCounter();
-            // Привязка кнопок результата
-            document.getElementById('downloadButton').addEventListener('click', downloadCollage);
-            document.getElementById('newCollageButton').addEventListener('click', newCollage);
-        });
-        // Обновление списка файлов
-        function updateFileList() {
-            const fileList = document.getElementById('fileList');
-            const fileCount = document.getElementById('fileCount');
-            // Очистка списка
-            fileList.innerHTML = '';
-            // Добавление файлов в список
-            files.forEach((file, index) => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.textContent = `${index + 1}. ${file.name}`;
-                // Добавляем кнопку удаления
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = '✖';
-                deleteBtn.style.marginLeft = '10px';
-                deleteBtn.style.background = 'none';
-                deleteBtn.style.border = 'none';
-                deleteBtn.style.cursor = 'pointer';
-                deleteBtn.onclick = function() {
-                    files.splice(index, 1);
-                    updateFileList();
-                    updateFileCounter();
-                };
-                fileItem.appendChild(deleteBtn);
-                fileList.appendChild(fileItem);
-            });
-            // Обновление счетчика
-            updateFileCounter();
+
+        // Функция для расчета необходимого количества файлов
+        function getRequiredCount(grid) {
+            const counts = {
+                "2x2": 4,
+                "2x3": 6, // 2 столбца x 3 строки = 6 ячеек
+                "3x1": 3,
+                "1x3": 3,
+                "2x1": 2,
+                "1x2": 2
+            };
+            return counts[grid] || 4;
         }
-        // Обновление счетчика файлов
+
+        // Функция для получения параметров из URL
+        function getUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                grid: urlParams.get('grid'),
+                size: urlParams.get('size'),
+                media: urlParams.get('media')
+            };
+        }
+
+        // Автоматическое заполнение полей при загрузке страницы
+        window.addEventListener('load', function() {
+            const params = getUrlParams();
+            if (params.grid) {
+                // Автоматически выбрать сетку
+                const gridItems = document.querySelectorAll('.grid-option');
+                gridItems.forEach(item => {
+                    if (item.dataset.grid === params.grid) {
+                        item.click(); // Имитируем клик для выбора
+                    }
+                });
+            }
+            if (params.size) {
+                // Автоматически выбрать размер
+                const sizeItems = document.querySelectorAll('.size-option');
+                sizeItems.forEach(item => {
+                    if (item.dataset.size === params.size) {
+                        item.click(); // Имитируем клик для выбора
+                    }
+                });
+            }
+            // Если есть медиафайлы в URL, можно сразу загрузить их
+            if (params.media) {
+                try {
+                    const mediaData = JSON.parse(decodeURIComponent(params.media));
+                    // Можно реализовать автоматическую загрузку файлов
+                    console.log('Медиа данные из URL:', mediaData);
+                } catch (e) {
+                    console.error('Ошибка парсинга медиа данных:', e);
+                }
+            }
+        });
+
+        // Функция для перехода между шагами
+        function showStep(stepNumber) {
+            // Скрыть все шаги
+            document.querySelectorAll('.step-container').forEach(step => {
+                step.classList.remove('active');
+            });
+            // Показать нужный шаг
+            document.getElementById('step' + stepNumber).classList.add('active');
+        }
+
+        // Обработчики для выбора сетки
+        document.querySelectorAll('.grid-option').forEach(item => {
+            item.addEventListener('click', () => {
+                selectedGrid = item.dataset.grid;
+                document.querySelectorAll('.grid-option').forEach(el => el.classList.remove('selected'));
+                item.classList.add('selected');
+                requiredCount = getRequiredCount(selectedGrid);
+                updateFileCounter();
+            });
+        });
+
+        // Обработчики для выбора размера
+        document.querySelectorAll('.size-option').forEach(item => {
+            item.addEventListener('click', () => {
+                selectedSize = item.dataset.size;
+                document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
+                item.classList.add('selected');
+            });
+        });
+
+        // Обработчик загрузки файлов
+        document.getElementById('uploadArea').addEventListener('click', function() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.multiple = true;
+            fileInput.accept = 'image/*,video/*';
+
+            fileInput.onchange = function(e) {
+                const files = Array.from(e.target.files);
+
+                // Проверяем, не превышено ли максимальное количество файлов
+                const maxFiles = requiredCount * 2; // Максимум в 2 раза больше требуемого
+                if (files.length > maxFiles) {
+                    showError(`Вы загрузили слишком много файлов (${files.length}). Максимум ${maxFiles} файлов.`);
+                    document.getElementById('createCollageBtn').style.display = 'none';
+                    return;
+                }
+
+                // Очищаем ошибку
+                hideError();
+
+                // Обновляем список файлов
+                uploadedFiles = files;
+                originalFiles = [...uploadedFiles]; // Сохраняем оригинальные файлы
+
+                // Обновляем счетчик
+                const currentCountElement = document.getElementById('currentCount');
+                if (currentCountElement) {
+                    currentCountElement.textContent = uploadedFiles.length;
+                }
+
+                // Обновляем текст в загрузочной области
+                document.getElementById('fileCount').textContent = `загружено ${uploadedFiles.length}/${requiredCount} файлов`;
+
+                // Показываем кнопку "Создать коллаж" если файлов достаточно
+                if (uploadedFiles.length >= requiredCount) {
+                    document.getElementById('createCollageBtn').style.display = 'block';
+                } else {
+                    document.getElementById('createCollageBtn').style.display = 'none';
+                }
+            };
+
+            fileInput.click();
+        });
+
+        // Функция отображения ошибки
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        // Функция скрытия ошибки
+        function hideError() {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // Обработчик создания коллажа
+        document.getElementById('createCollageBtn').addEventListener('click', function() {
+            // Проверяем количество файлов
+            if (uploadedFiles.length > requiredCount) {
+                showError(`Упс, вы загрузили слишком много файлов (${uploadedFiles.length}). Пожалуйста, загрузите не более ${requiredCount} файлов.`);
+                return;
+            }
+            if (uploadedFiles.length >= requiredCount) {
+                // Показываем загрузку
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('createCollageBtn').disabled = true;
+
+                // Симуляция отправки на сервер
+                setTimeout(() => {
+                    // Скрываем загрузку
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('createCollageBtn').disabled = false;
+
+                    // Показываем результат
+                    showStep(4);
+                    // Отображаем коллаж
+                    displayCollage();
+                }, 2000);
+            }
+        });
+
+        // Функция отображения коллажа
+        function displayCollage() {
+            const preview = document.getElementById('collagePreview');
+            preview.innerHTML = '';
+
+            // Проверяем, что у нас есть файлы
+            if (!uploadedFiles || uploadedFiles.length === 0) {
+                preview.innerHTML = '<p style="text-align:center; color:red;">Нет файлов для отображения</p>';
+                return;
+            }
+
+            // Устанавливаем количество столбцов и строк в зависимости от сетки
+            if (selectedGrid === "2x2") {
+                const cols = 2, rows = 2;
+                const cellWidth = 100 / cols;
+                const cellHeight = 100 / rows;
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const idx = r * cols + c;
+                        if (idx < uploadedFiles.length) {
+                            const file = uploadedFiles[idx];
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            div.style.overflow = 'hidden';
+
+                            if (file.type.startsWith('image/')) {
+                                const img = document.createElement('img');
+                                img.src = URL.createObjectURL(file);
+                                img.style.width = '100%';
+                                img.style.height = '100%';
+                                img.style.objectFit = 'cover';
+                                div.appendChild(img);
+                            } else if (file.type.startsWith('video/')) {
+                                const video = document.createElement('video');
+                                video.src = URL.createObjectURL(file);
+                                video.controls = false;
+                                video.autoplay = true;
+                                video.loop = true;
+                                video.muted = true;
+                                video.style.width = '100%';
+                                video.style.height = '100%';
+                                video.style.objectFit = 'cover';
+                                div.appendChild(video);
+                            }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            preview.appendChild(div);
+                        }
+                    }
+                }
+            } else if (selectedGrid === "2x3") {
+                const cols = 2, rows = 3;
+                const cellWidth = 100 / cols;
+                const cellHeight = 100 / rows;
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const idx = r * cols + c;
+                        if (idx < uploadedFiles.length) {
+                            const file = uploadedFiles[idx];
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            div.style.overflow = 'hidden';
+
+                            if (file.type.startsWith('image/')) {
+                                const img = document.createElement('img');
+                                img.src = URL.createObjectURL(file);
+                                img.style.width = '100%';
+                                img.style.height = '100%';
+                                img.style.objectFit = 'cover';
+                                div.appendChild(img);
+                            } else if (file.type.startsWith('video/')) {
+                                const video = document.createElement('video');
+                                video.src = URL.createObjectURL(file);
+                                video.controls = false;
+                                video.autoplay = true;
+                                video.loop = true;
+                                video.muted = true;
+                                video.style.width = '100%';
+                                video.style.height = '100%';
+                                video.style.objectFit = 'cover';
+                                div.appendChild(video);
+                            }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            preview.appendChild(div);
+                        }
+                    }
+                }
+            } else if (selectedGrid === "3x1") {
+                const cols = 1, rows = 3;
+                const cellWidth = 100 / cols;
+                const cellHeight = 100 / rows;
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const idx = r * cols + c;
+                        if (idx < uploadedFiles.length) {
+                            const file = uploadedFiles[idx];
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            div.style.overflow = 'hidden';
+
+                            if (file.type.startsWith('image/')) {
+                                const img = document.createElement('img');
+                                img.src = URL.createObjectURL(file);
+                                img.style.width = '100%';
+                                img.style.height = '100%';
+                                img.style.objectFit = 'cover';
+                                div.appendChild(img);
+                            } else if (file.type.startsWith('video/')) {
+                                const video = document.createElement('video');
+                                video.src = URL.createObjectURL(file);
+                                video.controls = false;
+                                video.autoplay = true;
+                                video.loop = true;
+                                video.muted = true;
+                                video.style.width = '100%';
+                                video.style.height = '100%';
+                                video.style.objectFit = 'cover';
+                                div.appendChild(video);
+                            }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            preview.appendChild(div);
+                        }
+                    }
+                }
+            } else if (selectedGrid === "1x3") {
+                const cols = 3, rows = 1;
+                const cellWidth = 100 / cols;
+                const cellHeight = 100 / rows;
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const idx = r * cols + c;
+                        if (idx < uploadedFiles.length) {
+                            const file = uploadedFiles[idx];
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            div.style.overflow = 'hidden';
+
+                            if (file.type.startsWith('image/')) {
+                                const img = document.createElement('img');
+                                img.src = URL.createObjectURL(file);
+                                img.style.width = '100%';
+                                img.style.height = '100%';
+                                img.style.objectFit = 'cover';
+                                div.appendChild(img);
+                            } else if (file.type.startsWith('video/')) {
+                                const video = document.createElement('video');
+                                video.src = URL.createObjectURL(file);
+                                video.controls = false;
+                                video.autoplay = true;
+                                video.loop = true;
+                                video.muted = true;
+                                video.style.width = '100%';
+                                video.style.height = '100%';
+                                video.style.objectFit = 'cover';
+                                div.appendChild(video);
+                            }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            preview.appendChild(div);
+                        }
+                    }
+                }
+            } else if (selectedGrid === "2x1") {
+                const cols = 1, rows = 2;
+                const cellWidth = 100 / cols;
+                const cellHeight = 100 / rows;
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const idx = r * cols + c;
+                        if (idx < uploadedFiles.length) {
+                            const file = uploadedFiles[idx];
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            div.style.overflow = 'hidden';
+
+                            if (file.type.startsWith('image/')) {
+                                const img = document.createElement('img');
+                                img.src = URL.createObjectURL(file);
+                                img.style.width = '100%';
+                                img.style.height = '100%';
+                                img.style.objectFit = 'cover';
+                                div.appendChild(img);
+                            } else if (file.type.startsWith('video/')) {
+                                const video = document.createElement('video');
+                                video.src = URL.createObjectURL(file);
+                                video.controls = false;
+                                video.autoplay = true;
+                                video.loop = true;
+                                video.muted = true;
+                                video.style.width = '100%';
+                                video.style.height = '100%';
+                                video.style.objectFit = 'cover';
+                                div.appendChild(video);
+                            }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            preview.appendChild(div);
+                        }
+                    }
+                }
+            } else if (selectedGrid === "1x2") {
+                const cols = 2, rows = 1;
+                const cellWidth = 100 / cols;
+                const cellHeight = 100 / rows;
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const idx = r * cols + c;
+                        if (idx < uploadedFiles.length) {
+                            const file = uploadedFiles[idx];
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            div.style.overflow = 'hidden';
+
+                            if (file.type.startsWith('image/')) {
+                                const img = document.createElement('img');
+                                img.src = URL.createObjectURL(file);
+                                img.style.width = '100%';
+                                img.style.height = '100%';
+                                img.style.objectFit = 'cover';
+                                div.appendChild(img);
+                            } else if (file.type.startsWith('video/')) {
+                                const video = document.createElement('video');
+                                video.src = URL.createObjectURL(file);
+                                video.controls = false;
+                                video.autoplay = true;
+                                video.loop = true;
+                                video.muted = true;
+                                video.style.width = '100%';
+                                video.style.height = '100%';
+                                video.style.objectFit = 'cover';
+                                div.appendChild(video);
+                            }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            preview.appendChild(div);
+                        }
+                    }
+                }
+            } else {
+                // По умолчанию 2x2
+                const cols = 2, rows = 2;
+                const cellWidth = 100 / cols;
+                const cellHeight = 100 / rows;
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const idx = r * cols + c;
+                        if (idx < uploadedFiles.length) {
+                            const file = uploadedFiles[idx];
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            div.style.overflow = 'hidden';
+
+                            if (file.type.startsWith('image/')) {
+                                const img = document.createElement('img');
+                                img.src = URL.createObjectURL(file);
+                                img.style.width = '100%';
+                                img.style.height = '100%';
+                                img.style.objectFit = 'cover';
+                                div.appendChild(img);
+                            } else if (file.type.startsWith('video/')) {
+                                const video = document.createElement('video');
+                                video.src = URL.createObjectURL(file);
+                                video.controls = false;
+                                video.autoplay = true;
+                                video.loop = true;
+                                video.muted = true;
+                                video.style.width = '100%';
+                                video.style.height = '100%';
+                                video.style.objectFit = 'cover';
+                                div.appendChild(video);
+                            }
+                            preview.appendChild(div);
+                        } else {
+                            // Пустая ячейка (черная)
+                            const div = document.createElement('div');
+                            div.style.position = 'absolute';
+                            div.style.width = `${cellWidth}%`;
+                            div.style.height = `${cellHeight}%`;
+                            div.style.left = `${c * cellWidth}%`;
+                            div.style.top = `${r * cellHeight}%`;
+                            div.style.backgroundColor = '#000';
+                            div.style.border = '1px solid rgba(255,255,255,0.3)';
+                            preview.appendChild(div);
+                        }
+                    }
+                }
+            }
+
+            // Устанавливаем ссылку для скачивания
+            window.downloadCollage = function() {
+                // В реальном приложении здесь будет ссылка на скачивание
+                alert('Коллаж готов! В реальном приложении здесь будет ссылка на скачивание.');
+            };
+        }
+
+        // Функция скачивания коллажа
+        function downloadCollage() {
+            // В реальном приложении здесь будет ссылка на скачивание
+            alert('Коллаж готов! В реальном приложении здесь будет ссылка на скачивание.');
+        }
+
+        // Функция нового коллажа
+        function newCollage() {
+            // Сброс данных
+            selectedGrid = '';
+            selectedSize = '';
+            uploadedFiles = [];
+            originalFiles = [];
+            requiredCount = 4;
+            collageUrl = '';
+
+            // Сброс интерфейса
+            document.querySelectorAll('.grid-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
+
+            document.getElementById('fileCount').textContent = 'загружено 0/4 файлов';
+            document.getElementById('createCollageBtn').style.display = 'none';
+            document.getElementById('collagePreview').innerHTML = '';
+            // Очищаем ошибку
+            hideError();
+            // Возврат к первому шагу
+            document.getElementById('step4').classList.remove('active');
+            document.getElementById('createCollageBtn').style.display = 'block';
+        }
+
+        // Инициализация
+        document.querySelector('.grid-option').classList.add('selected');
+        document.querySelector('.size-option').classList.add('selected');
+        updateFileCounter();
+
+        // Функция обновления счетчика файлов
         function updateFileCounter() {
             const fileCount = document.getElementById('fileCount');
-            const maxFiles = gridFileCounts[selectedGrid] || 4;
-            fileCount.textContent = `загружено ${files.length}/${maxFiles} файлов`;
-        }
-        // Создание коллажа
-        async function createCollage() {
-            console.log('Начинаем создание коллажа');
-            console.log('Выбранная сетка:', selectedGrid);
-            console.log('Выбранный размер:', selectedSize);
-            console.log('Количество файлов:', files.length);
-            if (files.length === 0) {
-                console.log('Ошибка: нет загруженных файлов');
-                alert('Пожалуйста, загрузите хотя бы один файл.');
-                return;
-            }
-            // Проверяем, достаточно ли файлов для выбранной сетки
-            const requiredFiles = gridFileCounts[selectedGrid] || 4;
-            if (files.length < requiredFiles) {
-                console.log('Ошибка: недостаточно файлов для сетки', selectedGrid);
-                alert(`Для сетки ${selectedGrid} требуется минимум ${requiredFiles} файла(ов).`);
-                return;
-            }
-            // Показываем индикатор прогресса
-            document.getElementById('progress').style.display = 'block';
-            document.getElementById('createButton').disabled = true;
-            try {
-                console.log('Отправка запроса на сервер');
-                // Конвертируем файлы в base64
-                const mediaData = [];
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const fileType = file.type.startsWith('image/') ? 'photo' : 'video';
-                    console.log('Обрабатываем файл:', file.name, 'тип:', fileType);
-                    // Конвертируем файл в base64
-                    const reader = new FileReader();
-                    const base64Promise = new Promise((resolve, reject) => {
-                        reader.onload = () => resolve(reader.result);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(file); // Используем readAsDataURL для base64
-                    });
-                    const base64Data = await base64Promise;
-                    mediaData.push({
-                        url: base64Data, // Теперь это base64 строка
-                        type: fileType
-                    });
-                }
-                console.log('Данные для отправки:', {
-                    grid: selectedGrid,
-                    size: selectedSize,
-                    media: mediaData
-                });
-                // Используем правильный URL - ссылку на ваш сайт
-                const response = await fetch('http://localhost:5000/create-collage', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        grid: selectedGrid,
-                        size: selectedSize,
-                        media: mediaData
-                    })
-                });
-                console.log('Ответ от сервера:', response.status);
-                const result = await response.json();
-                console.log('Результат от сервера:', result);
-                if (result.status === 'success') {
-                    console.log('Коллаж успешно создан');
-                    // Показываем результат в мини-приложении
-                    showResult(result.url);
-                    // Отправляем результат в бота (если работаем в Telegram Mini App)
-                    if (window.Telegram && window.Telegram.WebApp) {
-                        // УБРАЛИ: window.Telegram.WebApp.sendData(...)
-                        // Мы не отправляем данные в бота через sendData при прямом запуске в браузере
-                        // Только если работает в Telegram Mini App
-                    }
-                    // Для тестирования в браузере
-                    if (!window.Telegram || !window.Telegram.WebApp) {
-                        alert(`Коллаж готов! Скачать: ${result.url}`);
-                    }
-                } else {
-                    throw new Error(result.message || 'Ошибка создания коллажа');
-                }
-            } catch (error) {
-                console.error('Ошибка создания коллажа:', error);
-                alert('Ошибка создания коллажа: ' + error.message);
-            } finally {
-                // Скрываем индикатор прогресса
-                document.getElementById('progress').style.display = 'none';
-                document.getElementById('createButton').disabled = false;
-            }
-        }
-        // Показать результат
-        function showResult(url) {
-            const resultContainer = document.getElementById('resultContainer');
-            const collageGrid = document.getElementById('collageGrid');
-            const downloadButton = document.getElementById('downloadButton');
-            // Очищаем предыдущий контент
-            collageGrid.innerHTML = '';
-            // Устанавливаем количество столбцов и строк в зависимости от сетки
-            let cols, rows;
-            switch(selectedGrid) {
-                case '2x2':
-                    cols = 2;
-                    rows = 2;
-                    break;
-                case '2x3':
-                    cols = 2;
-                    rows = 3;
-                    break;
-                case '3x1':
-                    cols = 3;
-                    rows = 1;
-                    break;
-                case '1x3':
-                    cols = 1;
-                    rows = 3;
-                    break;
-                case '2x1':
-                    cols = 2;
-                    rows = 1;
-                    break;
-                case '1x2':
-                    cols = 1;
-                    rows = 2;
-                    break;
-                default:
-                    cols = 2;
-                    rows = 2;
-            }
-            // Устанавливаем сетку
-            collageGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-            collageGrid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-            // Создаем элементы для каждого файла
-            for (let i = 0; i < files.length; i++) {
-                const item = document.createElement('div');
-                item.className = 'collage-item';
-                // Добавляем изображение или видео
-                if (files[i].type.startsWith('image/')) {
-                    const img = document.createElement('img');
-                    img.src = URL.createObjectURL(files[i]);
-                    item.appendChild(img);
-                } else {
-                    const video = document.createElement('video');
-                    video.src = URL.createObjectURL(files[i]);
-                    video.controls = false;
-                    video.muted = true;
-                    video.autoplay = true;
-                    video.loop = true;
-                    item.appendChild(video);
-                }
-                collageGrid.appendChild(item);
-            }
-            // Устанавливаем ссылку для скачивания
-            downloadButton.onclick = function() {
-                window.open(url, '_blank');
-            };
-            // Показываем результат
-            resultContainer.style.display = 'block';
-            // Скрываем кнопку создания и прогресс
-            document.getElementById('createButton').style.display = 'none';
-            document.getElementById('progress').style.display = 'none';
-        }
-        // Скачать коллаж
-        function downloadCollage() {
-            const resultContainer = document.getElementById('resultContainer');
-            const downloadButton = document.getElementById('downloadButton');
-            const url = downloadButton.onclick.toString().match(/'(.*?)'/)[1]; // Это не идеально, но работает для демонстрации
-            window.open(url, '_blank');
-        }
-        // Новый коллаж
-        function newCollage() {
-            const resultContainer = document.getElementById('resultContainer');
-            const createButton = document.getElementById('createButton');
-            // Скрываем результат
-            resultContainer.style.display = 'none';
-            // Показываем кнопку создания
-            createButton.style.display = 'block';
-            // Сбрасываем файлы
-            files = [];
-            updateFileList();
-            updateFileCounter();
+            const maxFiles = getRequiredCount(selectedGrid);
+            fileCount.textContent = `загружено ${uploadedFiles.length}/${maxFiles} файлов`;
         }
     </script>
 </body>
