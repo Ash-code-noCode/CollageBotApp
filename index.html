@@ -55,7 +55,6 @@
             height: 70px;
             font-size: 14px;
         }
-
         /* Отдельные стили для блоков размеров */
         .size-option {
             width: 30px;
@@ -127,6 +126,87 @@
             display: none;
             margin-top: 20px;
             text-align: center;
+        }
+        /* Стили для результата */
+        .result-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .result-message {
+            background-color: #e8f7fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .collage-grid {
+            display: grid;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .collage-item {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .collage-item img, .collage-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .download-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #1583A3;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .download-button:hover {
+            background-color: #126a80;
+        }
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .action-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #1583A3;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .action-button:hover {
+            background-color: #126a80;
+        }
+        /* Новая кнопка "Новый коллаж" */
+        .new-collage-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #1583A3;
+            color: #145569;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: 'Unbounded', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+        .new-collage-button:hover {
+            background-color: #126a80;
         }
     </style>
 </head>
@@ -217,6 +297,15 @@
         <div class="progress" id="progress">
             <p>Создаем коллаж...</p>
         </div>
+        <!-- Результат -->
+        <div class="result-container" id="resultContainer">
+            <div class="result-message">Коллаж создан!</div>
+            <div class="collage-grid" id="collageGrid"></div>
+            <div class="action-buttons">
+                <button class="action-button" id="downloadButton">Скачать коллаж</button>
+                <button class="new-collage-button" id="newCollageButton">Новый коллаж</button>
+            </div>
+        </div>
     </div>
     <script>
         // Глобальные переменные
@@ -232,11 +321,9 @@
             '2x1': 2,
             '1x2': 2
         };
-
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM загружен');
-
             // Настройка выбора сетки
             document.querySelectorAll('.grid-option').forEach(option => {
                 option.addEventListener('click', function() {
@@ -247,7 +334,6 @@
                     updateFileCounter();
                 });
             });
-
             // Настройка выбора размера
             document.querySelectorAll('.size-option').forEach(option => {
                 option.addEventListener('click', function() {
@@ -257,7 +343,6 @@
                     selectedSize = this.getAttribute('data-size');
                 });
             });
-
             // Настройка области загрузки
             const uploadArea = document.getElementById('uploadArea');
             uploadArea.addEventListener('click', function() {
@@ -270,7 +355,6 @@
                     console.log('Выбраны файлы:', e.target.files.length);
                     const newFiles = Array.from(e.target.files);
                     const maxFiles = gridFileCounts[selectedGrid] || 4;
-
                     if (files.length + newFiles.length > maxFiles) {
                         alert(`Для выбранной сетки ${selectedGrid} требуется максимум ${maxFiles} файлов.`);
                         return;
@@ -281,20 +365,19 @@
                 };
                 input.click();
             });
-
             // Привязка кнопки создания коллажа
             const createButton = document.getElementById('createButton');
             createButton.addEventListener('click', createCollage);
             console.log('Кнопка создания коллажа привязана');
-
             // Инициализируем первый выбранный элемент
             document.querySelector('.grid-option').classList.add('selected');
             document.querySelector('.size-option').classList.add('selected');
-
             // Инициализируем счетчик
             updateFileCounter();
+            // Привязка кнопок результата
+            document.getElementById('downloadButton').addEventListener('click', downloadCollage);
+            document.getElementById('newCollageButton').addEventListener('click', newCollage);
         });
-
         // Обновление списка файлов
         function updateFileList() {
             const fileList = document.getElementById('fileList');
@@ -324,27 +407,23 @@
             // Обновление счетчика
             updateFileCounter();
         }
-
         // Обновление счетчика файлов
         function updateFileCounter() {
             const fileCount = document.getElementById('fileCount');
             const maxFiles = gridFileCounts[selectedGrid] || 4;
             fileCount.textContent = `загружено ${files.length}/${maxFiles} файлов`;
         }
-
         // Создание коллажа
         async function createCollage() {
             console.log('Начинаем создание коллажа');
             console.log('Выбранная сетка:', selectedGrid);
             console.log('Выбранный размер:', selectedSize);
             console.log('Количество файлов:', files.length);
-
             if (files.length === 0) {
                 console.log('Ошибка: нет загруженных файлов');
                 alert('Пожалуйста, загрузите хотя бы один файл.');
                 return;
             }
-
             // Проверяем, достаточно ли файлов для выбранной сетки
             const requiredFiles = gridFileCounts[selectedGrid] || 4;
             if (files.length < requiredFiles) {
@@ -352,21 +431,17 @@
                 alert(`Для сетки ${selectedGrid} требуется минимум ${requiredFiles} файла(ов).`);
                 return;
             }
-
             // Показываем индикатор прогресса
             document.getElementById('progress').style.display = 'block';
             document.getElementById('createButton').disabled = true;
-
             try {
                 console.log('Отправка запроса на сервер');
-
                 // Конвертируем файлы в base64
                 const mediaData = [];
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     const fileType = file.type.startsWith('image/') ? 'photo' : 'video';
                     console.log('Обрабатываем файл:', file.name, 'тип:', fileType);
-
                     // Конвертируем файл в base64
                     const reader = new FileReader();
                     const base64Promise = new Promise((resolve, reject) => {
@@ -374,20 +449,17 @@
                         reader.onerror = reject;
                         reader.readAsDataURL(file); // Используем readAsDataURL для base64
                     });
-
                     const base64Data = await base64Promise;
                     mediaData.push({
                         url: base64Data, // Теперь это base64 строка
                         type: fileType
                     });
                 }
-
                 console.log('Данные для отправки:', {
                     grid: selectedGrid,
                     size: selectedSize,
                     media: mediaData
                 });
-
                 // Используем правильный URL - ссылку на ваш сайт
                 const response = await fetch('http://localhost:5000/create-collage', {
                     method: 'POST',
@@ -400,19 +472,20 @@
                         media: mediaData
                     })
                 });
-
                 console.log('Ответ от сервера:', response.status);
-
                 const result = await response.json();
                 console.log('Результат от сервера:', result);
-
                 if (result.status === 'success') {
                     console.log('Коллаж успешно создан');
-                    // Закрываем мини-приложение
-                    window.Telegram.WebApp.close();
-                    // В реальном проекте здесь нужно отправить сообщение в чат бота
-                    console.log('Коллаж успешно создан:', result.url);
-                    alert('Коллаж успешно создан! Результат будет отправлен в чат бота.');
+                    // Показываем результат в мини-приложении
+                    showResult(result.url);
+                    // Отправляем данные в бота (если работаем в Telegram Mini App)
+                    if (window.Telegram && window.Telegram.WebApp) {
+                        window.Telegram.WebApp.sendData(`webapp_${JSON.stringify({
+                            type: 'collage_result',
+                            url: result.url
+                        })}`);
+                    }
                 } else {
                     throw new Error(result.message || 'Ошибка создания коллажа');
                 }
@@ -424,6 +497,97 @@
                 document.getElementById('progress').style.display = 'none';
                 document.getElementById('createButton').disabled = false;
             }
+        }
+        // Показать результат
+        function showResult(url) {
+            const resultContainer = document.getElementById('resultContainer');
+            const collageGrid = document.getElementById('collageGrid');
+            const downloadButton = document.getElementById('downloadButton');
+            // Очищаем предыдущий контент
+            collageGrid.innerHTML = '';
+            // Устанавливаем количество столбцов и строк в зависимости от сетки
+            let cols, rows;
+            switch(selectedGrid) {
+                case '2x2':
+                    cols = 2;
+                    rows = 2;
+                    break;
+                case '2x3':
+                    cols = 2;
+                    rows = 3;
+                    break;
+                case '3x1':
+                    cols = 3;
+                    rows = 1;
+                    break;
+                case '1x3':
+                    cols = 1;
+                    rows = 3;
+                    break;
+                case '2x1':
+                    cols = 2;
+                    rows = 1;
+                    break;
+                case '1x2':
+                    cols = 1;
+                    rows = 2;
+                    break;
+                default:
+                    cols = 2;
+                    rows = 2;
+            }
+            // Устанавливаем сетку
+            collageGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            collageGrid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            // Создаем элементы для каждого файла
+            for (let i = 0; i < files.length; i++) {
+                const item = document.createElement('div');
+                item.className = 'collage-item';
+                // Добавляем изображение или видео
+                if (files[i].type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(files[i]);
+                    item.appendChild(img);
+                } else {
+                    const video = document.createElement('video');
+                    video.src = URL.createObjectURL(files[i]);
+                    video.controls = false;
+                    video.muted = true;
+                    video.autoplay = true;
+                    video.loop = true;
+                    item.appendChild(video);
+                }
+                collageGrid.appendChild(item);
+            }
+            // Устанавливаем ссылку для скачивания
+            downloadButton.onclick = function() {
+                window.open(url, '_blank');
+            };
+            // Показываем результат
+            resultContainer.style.display = 'block';
+            // Скрываем кнопку создания и прогресс
+            document.getElementById('createButton').style.display = 'none';
+            document.getElementById('progress').style.display = 'none';
+        }
+        // Скачать коллаж
+        function downloadCollage() {
+            const resultContainer = document.getElementById('resultContainer');
+            const downloadButton = document.getElementById('downloadButton');
+            const url = downloadButton.onclick.toString().match(/'(.*?)'/)[1]; // Это не идеально, но работает для демонстрации
+            window.open(url, '_blank');
+        }
+        // Новый коллаж
+        function newCollage() {
+            const resultContainer = document.getElementById('resultContainer');
+            const createButton = document.getElementById('createButton');
+            // Скрываем результат
+            resultContainer.style.display = 'none';
+            // Показываем кнопку создания
+            createButton.style.display = 'block';
+            // Сбрасываем файлы
+            files = [];
+            updateFileList();
+            updateFileCounter();
         }
     </script>
 </body>
