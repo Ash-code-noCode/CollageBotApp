@@ -61,8 +61,8 @@
             height: 30px;
             font-size: 14px;
         }
-        
-        
+
+
         .grid-option.selected, .size-option.selected {
             border-color: #1583A3;
             background-color: #1583A3;
@@ -80,7 +80,7 @@
             height: 40px;
             fill: none;
             stroke: #1583A3;
-            stroke-width: 1.5; /* Тоньше линии */
+            stroke-width: 1; /* Тоньше линии */
             stroke-linejoin: round; /* Скругление соединений */
             box-sizing: border-box;
         }
@@ -239,6 +239,8 @@
             '2x1': 2,      // 2x1 сетка требует 2 файла
             '1x2': 2       // 1x2 сетка требует 2 файла
         };
+        // Логирование для отладки
+        console.log('Инициализация приложения');
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             // Настройка выбора сетки
@@ -282,6 +284,11 @@
                 };
                 input.click();
             });
+            // Привязка кнопки создания коллажа
+            const createButton = document.getElementById('createButton');
+            createButton.addEventListener('click', createCollage);
+            console.log('Кнопка создания коллажа привязана');
+
             // Инициализируем первый выбранный элемент
             document.querySelector('.grid-option').classList.add('selected');
             document.querySelector('.size-option').classList.add('selected');
@@ -325,13 +332,20 @@
         }
         // Создание коллажа
         async function createCollage() {
+            console.log('Начинаем создание коллажа');
+            console.log('Выбранная сетка:', selectedGrid);
+            console.log('Выбранный размер:', selectedSize);
+            console.log('Количество файлов:', files.length);
+
             if (files.length === 0) {
+                console.log('Ошибка: нет загруженных файлов');
                 alert('Пожалуйста, загрузите хотя бы один файл.');
                 return;
             }
             // Проверяем, достаточно ли файлов для выбранной сетки
             const requiredFiles = gridFileCounts[selectedGrid] || 4;
             if (files.length < requiredFiles) {
+                console.log('Ошибка: недостаточно файлов для сетки', selectedGrid);
                 alert(`Для сетки ${selectedGrid} требуется минимум ${requiredFiles} файла(ов).`);
                 return;
             }
@@ -340,14 +354,12 @@
             document.getElementById('createButton').disabled = true;
             try {
                 // Создаем FormData для отправки файлов
-                const formData = new FormData();
-                formData.append('grid', selectedGrid);
-                formData.append('size', selectedSize);
-                // Преобразуем файлы в URL и отправляем
                 const mediaData = [];
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     const fileType = file.type.startsWith('image/') ? 'photo' : 'video';
+                    console.log('Обрабатываем файл:', file.name, 'тип:', fileType);
+
                     // Создаем URL для файла
                     const fileUrl = URL.createObjectURL(file);
                     mediaData.push({
@@ -355,6 +367,11 @@
                         type: fileType
                     });
                 }
+                console.log('Данные для отправки:', {
+                    grid: selectedGrid,
+                    size: selectedSize,
+                    media: mediaData
+                });
                 // Отправляем запрос на сервер
                 const response = await fetch('https://your-server-domain.com/create-collage', {
                     method: 'POST',
@@ -367,7 +384,11 @@
                         media: mediaData
                     })
                 });
+                console.log('Ответ от сервера:', response.status);
+
                 const result = await response.json();
+                console.log('Результат от сервера:', result);
+
                 if (result.status === 'success') {
                     // Закрываем мини-приложение
                     window.Telegram.WebApp.close();
