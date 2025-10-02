@@ -217,7 +217,7 @@
         }
         .collage-preview {
             width: 100%;
-            aspect-ratio: 9/16;
+            /*aspect-ratio: 9/16; */
             border: 1px solid #ddd;
             overflow: hidden;
             margin-top: 20px;
@@ -410,6 +410,31 @@
         let requiredCount = 4;
         let originalFiles = []; // Для сохранения оригинальных файлов при изменении размера
         let collageUrl = ''; // Для хранения URL коллажа
+
+        //Функция сохранения размера
+        function updatePreviewAspectRatio(size) {
+            const preview = document.getElementById('collagePreview');
+            switch (size) {
+                case "9:16":
+                    preview.style.aspectRatio = "9 / 16";
+                    break;
+                case "16:9":
+                    preview.style.aspectRatio = "16 / 9";
+                    break;
+                case "1:1":
+                    preview.style.aspectRatio = "1 / 1";
+                    break;
+                case "3:4":
+                    preview.style.aspectRatio = "3 / 4";
+                    break;
+                case "4:3":
+                    preview.style.aspectRatio = "4 / 3";
+                    break;
+                default:
+                    preview.style.aspectRatio = "1 / 1";
+            }
+        }
+
         // Маппинг количества файлов для каждой сетки
         const gridFileCounts = {
             '2x2': 4,
@@ -497,6 +522,8 @@
                 selectedSize = item.dataset.size;
                 document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
                 item.classList.add('selected');
+                    //Вызов функции размера
+                updatePreviewAspectRatio(selectedSize);
             });
         });
         // Обработчик загрузки файлов
@@ -574,6 +601,8 @@
                         }))
                     })
                 })
+                console.log("Отправляем данные:", { grid: selectedGrid, size: selectedSize, files: uploadedFiles.length });
+
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById('loading').style.display = 'none';
