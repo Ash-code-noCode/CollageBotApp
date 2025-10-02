@@ -562,7 +562,7 @@
                 document.getElementById('createCollageBtn').disabled = true;
 
                 // Отправляем данные на сервер
-                fetch("http://localhost:5000/create-collage", {
+                fetch("https://silent-squids-shout.loca.lt", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1043,7 +1043,7 @@
                     type: 'collage_result',
                     grid: selectedGrid,
                     size: selectedSize,
-                    url: 'http://localhost:5000/' + Math.random().toString(36).substring(7) + '.mp4'
+                    url: 'https://silent-squids-shout.loca.lt' + Math.random().toString(36).substring(7) + '.mp4'
                 };
 
                 // Имитация отправки через Telegram
