@@ -506,28 +506,32 @@
             // Показать нужный шаг
             document.getElementById('step' + stepNumber).classList.add('active');
         }
-        // Обработчики для выбора сетки
-        document.querySelectorAll('.grid-option').forEach(item => {
-            item.addEventListener('click', () => {
-                selectedGrid = item.dataset.grid;
-                document.querySelectorAll('.grid-option').forEach(el => el.classList.remove('selected'));
-                item.classList.add('selected');
-                requiredCount = getRequiredCount(selectedGrid);
-                updateFileCounter();
+        // Проверяем, что элементы существуют перед привязкой обработчиков
+        if (document.querySelectorAll('.grid-option').length > 0) {
+            document.querySelectorAll('.grid-option').forEach(item => {
+                item.addEventListener('click', () => {
+                    selectedGrid = item.dataset.grid;
+                    document.querySelectorAll('.grid-option').forEach(el => el.classList.remove('selected'));
+                    item.classList.add('selected');
+                    requiredCount = getRequiredCount(selectedGrid);
+                    updateFileCounter();
+                });
+        // Проверяем, что элементы существуют перед привязкой обработчиков
+        if (document.querySelectorAll('.size-option').length > 0) {
+            document.querySelectorAll('.size-option').forEach(item => {
+                item.addEventListener('click', () => {
+                    selectedSize = item.dataset.size;
+                    document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
+                    item.classList.add('selected');
+                    // Вызов функции размера
+                    updatePreviewAspectRatio(selectedSize);
+                });
             });
-        });
-        // Обработчики для выбора размера
-        document.querySelectorAll('.size-option').forEach(item => {
-            item.addEventListener('click', () => {
-                selectedSize = item.dataset.size;
-                document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
-                item.classList.add('selected');
-                    //Вызов функции размера
-                updatePreviewAspectRatio(selectedSize);
-            });
-        });
+        }
         // Обработчик загрузки файлов
-        document.getElementById('uploadArea').addEventListener('click', function() {
+        const uploadArea = document.getElementById('uploadArea');
+        if (uploadArea) {
+            uploadArea.addEventListener('click', function() {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.multiple = true;
@@ -589,7 +593,7 @@
                 document.getElementById('createCollageBtn').disabled = true;
 
                 // Отправляем данные на сервер
-                fetch("https://silent-squids-shout.loca.lt", {
+                fetch("https://silent-squids-shout.loca.lt/create-collage", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1047,25 +1051,55 @@
 
         // Отправка данных на сервер
         document.getElementById('createCollageBtn').addEventListener('click', function() {
-            // Проверяем количество файлов
             if (uploadedFiles.length > requiredCount) {
                 showError(`Упс, вы загрузили слишком много файлов (${uploadedFiles.length}). Пожалуйста, загрузите не более ${requiredCount} файлов.`);
                 return;
             }
             if (uploadedFiles.length >= requiredCount) {
-                // Показываем загрузку
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('createCollageBtn').disabled = true;
-
-                // Подготовка данных для отправки
-                const requestData = {
-                    grid: selectedGrid,
-                    size: selectedSize,
-                    media: uploadedFiles.map(file => ({
-                        url: URL.createObjectURL(file),
-                        type: file.type.startsWith('image/') ? 'photo' : 'video'
-                    }))
-                };
+                // Отправляем данные на сервер
+                fetch("https://silent-squids-shout.loca.lt/create-collage", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        grid: selectedGrid,
+                        size: selectedSize,
+                        media: uploadedFiles.map(f => ({
+                            url: URL.createObjectURL(f),
+                            type: f.type.startsWith("video/") ? "video" : "photo"
+                        }))
+                    })
+                })
+                .then(res => {
+                    console.log("Отправляем данные:", { grid: selectedGrid, size: selectedSize, files: uploadedFiles.length });
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('createCollageBtn').disabled = false;
+                    if (data.status === "success") {
+                        collageUrl = data.url;
+                        // Отправляем результат обратно в бота
+                        if (window.Telegram && Telegram.WebApp) {
+                            Telegram.WebApp.sendData(JSON.stringify({
+                                type: "collage_result",
+                                url: collageUrl
+                            }));
+                        }
+                        showStep(4);
+                        displayCollage();
+                    } else {
+                        showError("Ошибка при создании коллажа: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('createCollageBtn').disabled = false;
+                    showError("Ошибка соединения с сервером: " + err.message);
+                });
+            }
+        });
 
                 // Отправка данных на сервер через Telegram
                 const telegramData = {
