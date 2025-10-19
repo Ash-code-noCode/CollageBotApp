@@ -686,47 +686,40 @@
                 showError(`Упс, вы загрузили слишком много файлов (${uploadedFiles.length}). Пожалуйста, загрузите не более ${requiredCount} файлов.`);
                 return;
             }
-
             if (uploadedFiles.length >= requiredCount) {
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('createCollageBtn').disabled = true;
-
-                // Исправленная отправка данных с правильными параметрами
-                const mediaData = uploadedFiles.map(f => ({
-                    url: URL.createObjectURL(f),
-                    type: f.type.startsWith('image') ? 'photo' : 'video'
-                }));
-
+                // Отправляем данные на сервер
                 fetch("https://ashva-collage.loca.lt/create-collage", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         grid: selectedGrid,
                         size: selectedSize,
-                        media: mediaData,
-                        chat_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || null
+                        media: uploadedFiles.map(f => ({
+                            url: URL.createObjectURL(f),
+                            type: f.type.startsWith("video/") ? "video" : "photo"
+                        }))
                     })
                 })
-                .then(response => response.json())
+                .then(res => {
+                    console.log("Отправляем данные:", { grid: selectedGrid, size: selectedSize, files: uploadedFiles.length });
+                    return res.json();
+                })
                 .then(data => {
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('createCollageBtn').disabled = false;
-
                     if (data.status === "success") {
                         collageUrl = data.url;
-                        // Отображаем результат
-                        document.getElementById('step4').classList.add('active');
-                        // Используем URL для скачивания
-                        document.getElementById('collagePreview').innerHTML = `
-                            <div class="result-message">
-                                <p>✅ Коллаж успешно создан!</p>
-                                <p><a href="${data.url}" target="_blank">Скачать коллаж</a></p>
-                                <button onclick="downloadCollage()" class="create-button">Скачать</button>
-                                <button onclick="sendToBot()" class="create-button">Отправить в бот</button>
-                            </div>
-                        `;
+                        // Отправляем результат обратно в бота
+                        if (window.Telegram && Telegram.WebApp) {
+                            Telegram.WebApp.sendData(JSON.stringify({
+                                type: "collage_result",
+                                url: collageUrl
+                            }));
+                        }
+                        showStep(4);
+                        displayCollage();
                     } else {
                         showError("Ошибка при создании коллажа: " + data.message);
                     }
