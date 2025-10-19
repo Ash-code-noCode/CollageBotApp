@@ -403,15 +403,25 @@
         </div>
     </div>
     <script>
-        // Переменные для хранения данных
-        let selectedGrid = '';
-        let selectedSize = '';
+        // Переменные для хранения данных (без значений по умолчанию)
+        let selectedGrid = null; // Будет null до выбора пользователем
+        let selectedSize = null; // Будет null до выбора пользователем
         let uploadedFiles = [];
-        let requiredCount = 4;
+        let requiredCount = 0; // Будет 0 до выбора сетки
         let originalFiles = []; // Для сохранения оригинальных файлов при изменении размера
         let collageUrl = ''; // Для хранения URL коллажа
 
-        //Функция сохранения размера
+        // Функция получения параметров из URL
+        function getUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                grid: urlParams.get('grid'),
+                size: urlParams.get('size'),
+                media: urlParams.get('media')
+            };
+        }
+
+        // Функция обновления соотношения сторон предпросмотра
         function updatePreviewAspectRatio(size) {
             const preview = document.getElementById('collagePreview');
             switch (size) {
@@ -431,7 +441,7 @@
                     preview.style.aspectRatio = "4 / 3";
                     break;
                 default:
-                    preview.style.aspectRatio = "1 / 1";
+                    preview.style.aspectRatio = "1 / 1"; // На случай ошибки
             }
         }
 
@@ -444,128 +454,21 @@
             '2x1': 2,
             '1x2': 2
         };
-        // Функция для расчета необходимого количества файлов
+
+        // Функция получения количества требуемых файлов
         function getRequiredCount(grid) {
-            const counts = {
-                "2x2": 4,
-                "2x3": 6, // 2 столбца x 3 строки = 6 ячеек
-                "3x1": 3,
-                "1x3": 3,
-                "2x1": 2,
-                "1x2": 2
-            };
-            return counts[grid] || 4;
+            return gridFileCounts[grid] || 0; // Возвращает 0, если сетка не найдена
         }
-        // Функция для получения параметров из URL
-        function getUrlParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return {
-                grid: urlParams.get('grid'),
-                size: urlParams.get('size'),
-                media: urlParams.get('media')
-            };
-        }
-        // Автоматическое заполнение полей при загрузке страницы
-        window.addEventListener('load', function() {
-            const params = getUrlParams();
-            if (params.grid) {
-                // Автоматически выбрать сетку
-                const gridItems = document.querySelectorAll('.grid-option');
-                gridItems.forEach(item => {
-                    if (item.dataset.grid === params.grid) {
-                        item.click(); // Имитируем клик для выбора
-                    }
-                });
+
+        // Функция обновления счетчика файлов
+        function updateFileCounter() {
+            const fileCount = document.getElementById('fileCount');
+            if (fileCount && selectedGrid) { // Только если сетка выбрана
+                const maxFiles = getRequiredCount(selectedGrid);
+                fileCount.textContent = `загружено ${uploadedFiles.length}/${maxFiles} файлов`;
             }
-            if (params.size) {
-                // Автоматически выбрать размер
-                const sizeItems = document.querySelectorAll('.size-option');
-                sizeItems.forEach(item => {
-                    if (item.dataset.size === params.size) {
-                        item.click(); // Имитируем клик для выбора
-                    }
-                });
-            }
-            // Если есть медиафайлы в URL, можно сразу загрузить их
-            if (params.media) {
-                try {
-                    const mediaData = JSON.parse(decodeURIComponent(params.media));
-                    // Можно реализовать автоматическую загрузку файлов
-                    console.log('Медиа данные из URL:', mediaData);
-                } catch (e) {
-                    console.error('Ошибка парсинга медиа данных:', e);
-                }
-            }
-        });
-        // Функция для перехода между шагами
-        function showStep(stepNumber) {
-            // Скрыть все шаги
-            document.querySelectorAll('.step-container').forEach(step => {
-                step.classList.remove('active');
-            });
-            // Показать нужный шаг
-            document.getElementById('step' + stepNumber).classList.add('active');
         }
-        // Проверяем, что элементы существуют перед привязкой обработчиков
-        if (document.querySelectorAll('.grid-option').length > 0) {
-            document.querySelectorAll('.grid-option').forEach(item => {
-                item.addEventListener('click', () => {
-                    selectedGrid = item.dataset.grid;
-                    document.querySelectorAll('.grid-option').forEach(el => el.classList.remove('selected'));
-                    item.classList.add('selected');
-                    requiredCount = getRequiredCount(selectedGrid);
-                    updateFileCounter();
-                });
-        // Проверяем, что элементы существуют перед привязкой обработчиков
-        if (document.querySelectorAll('.size-option').length > 0) {
-            document.querySelectorAll('.size-option').forEach(item => {
-                item.addEventListener('click', () => {
-                    selectedSize = item.dataset.size;
-                    document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
-                    item.classList.add('selected');
-                    // Вызов функции размера
-                    updatePreviewAspectRatio(selectedSize);
-                });
-            });
-        }
-        // Обработчик загрузки файлов
-        const uploadArea = document.getElementById('uploadArea');
-        if (uploadArea) {
-            uploadArea.addEventListener('click', function() {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.multiple = true;
-            fileInput.accept = 'image/*,video/*';
-            fileInput.onchange = function(e) {
-                const files = Array.from(e.target.files);
-                // Проверяем, не превышено ли максимальное количество файлов
-                const maxFiles = requiredCount * 2; // Максимум в 2 раза больше требуемого
-                if (files.length > maxFiles) {
-                    showError(`Вы загрузили слишком много файлов (${files.length}). Максимум ${maxFiles} файлов.`);
-                    document.getElementById('createCollageBtn').style.display = 'none';
-                    return;
-                }
-                // Очищаем ошибку
-                hideError();
-                // Обновляем список файлов
-                uploadedFiles = files;
-                originalFiles = [...uploadedFiles]; // Сохраняем оригинальные файлы
-                // Обновляем счетчик
-                const currentCountElement = document.getElementById('currentCount');
-                if (currentCountElement) {
-                    currentCountElement.textContent = uploadedFiles.length;
-                }
-                // Обновляем текст в загрузочной области
-                document.getElementById('fileCount').textContent = `загружено ${uploadedFiles.length}/${requiredCount} файлов`;
-                // Показываем кнопку "Создать коллаж" если файлов достаточно
-                if (uploadedFiles.length >= requiredCount) {
-                    document.getElementById('createCollageBtn').style.display = 'block';
-                } else {
-                    document.getElementById('createCollageBtn').style.display = 'none';
-                }
-            };
-            fileInput.click();
-        });
+
         // Функция отображения ошибки
         function showError(message) {
             const errorElement = document.getElementById('errorMessage');
@@ -574,6 +477,7 @@
                 errorElement.style.display = 'block';
             }
         }
+
         // Функция скрытия ошибки
         function hideError() {
             const errorElement = document.getElementById('errorMessage');
@@ -581,50 +485,248 @@
                 errorElement.style.display = 'none';
             }
         }
-        // Обработчик создания коллажа
 
+        // Функция скачивания коллажа
+        function downloadCollage() {
+            if (collageUrl) {
+                const link = document.createElement('a');
+                link.href = collageUrl;
+                link.download = 'collage.mp4';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('Ссылка на скачивание недоступна.');
+            }
+        }
+
+        // Функция начала нового коллажа
+        function newCollage() {
+            // Очищаем все данные
+            uploadedFiles = [];
+            originalFiles = [];
+            collageUrl = '';
+
+            // Сбрасываем выбор сетки и размера
+            document.querySelectorAll('.grid-option').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
+
+            // Сбрасываем переменные
+            selectedGrid = null;
+            selectedSize = null;
+            requiredCount = 0;
+
+            // Скрываем результат и показываем первый шаг
+            document.getElementById('step4').classList.remove('active');
+            document.getElementById('step1').classList.add('active');
+
+            // Очищаем предпросмотр
+            document.getElementById('collagePreview').innerHTML = '';
+
+            // Скрываем кнопку создания
+            document.getElementById('createCollageBtn').style.display = 'none';
+
+            // Очищаем ошибку
+            hideError();
+
+            // Показываем сообщение о необходимости выбора
+            showError('Пожалуйста, выберите сетку и размер для создания коллажа.');
+        }
+
+        // Автоматическое заполнение полей при загрузке страницы
+        window.addEventListener('load', function() {
+            const params = getUrlParams();
+
+            // Проверяем, есть ли параметры в URL
+            if (params.grid || params.size) {
+                console.log('Параметры из URL:', params);
+
+                // Автоматически выбрать сетку, если параметр grid есть
+                if (params.grid) {
+                    const gridItems = document.querySelectorAll('.grid-option');
+                    let foundGrid = false;
+
+                    gridItems.forEach(item => {
+                        if (item.dataset.grid === params.grid) {
+                            item.click(); // Имитируем клик для выбора
+                            foundGrid = true;
+                        }
+                    });
+
+                    // Если сетка не найдена, ничего не выбираем (остается null)
+                    if (!foundGrid) {
+                        console.log('Сетка не найдена в URL');
+                    }
+                }
+
+                // Автоматически выбрать размер, если параметр size есть
+                if (params.size) {
+                    const sizeItems = document.querySelectorAll('.size-option');
+                    let foundSize = false;
+
+                    sizeItems.forEach(item => {
+                        if (item.dataset.size === params.size) {
+                            item.click(); // Имитируем клик для выбора
+                            foundSize = true;
+                        }
+                    });
+
+                    // Если размер не найден, ничего не выбираем (остается null)
+                    if (!foundSize) {
+                        console.log('Размер не найден в URL');
+                    }
+                }
+            }
+
+            // Если ни сетка, ни размер не выбраны, показываем сообщение
+            if (!selectedGrid || !selectedSize) {
+                showError('Пожалуйста, выберите сетку и размер для создания коллажа.');
+            }
+        });
+
+        // Обработчики для выбора сетки
+        document.querySelectorAll('.grid-option').forEach(item => {
+            item.addEventListener('click', () => {
+                selectedGrid = item.dataset.grid;
+                document.querySelectorAll('.grid-option').forEach(el => el.classList.remove('selected'));
+                item.classList.add('selected');
+                requiredCount = getRequiredCount(selectedGrid);
+                updateFileCounter();
+
+                // Проверяем, выбраны ли и сетка, и размер
+                checkCreateButtonState();
+            });
+        });
+
+        // Обработчики для выбора размера
+        document.querySelectorAll('.size-option').forEach(item => {
+            item.addEventListener('click', () => {
+                selectedSize = item.dataset.size;
+                document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
+                item.classList.add('selected');
+                updatePreviewAspectRatio(selectedSize);
+
+                // Проверяем, выбраны ли и сетка, и размер
+                checkCreateButtonState();
+            });
+        });
+
+        // Функция проверки состояния кнопки создания
+        function checkCreateButtonState() {
+            const createBtn = document.getElementById('createCollageBtn');
+            if (createBtn) {
+                // Кнопка активна только если выбраны и сетка, и размер, и достаточно файлов
+                if (selectedGrid && selectedSize && uploadedFiles.length >= requiredCount) {
+                    createBtn.style.display = 'block';
+                    createBtn.disabled = false;
+                } else {
+                    createBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // Обработчик загрузки файлов
+        const uploadArea = document.getElementById('uploadArea');
+        if (uploadArea) {
+            uploadArea.addEventListener('click', function() {
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.multiple = true;
+                fileInput.accept = 'image/*,video/*';
+                fileInput.onchange = function(e) {
+                    const files = Array.from(e.target.files);
+
+                    // Проверяем, что сетка выбрана
+                    if (!selectedGrid) {
+                        showError('Пожалуйста, сначала выберите сетку для коллажа.');
+                        return;
+                    }
+
+                    // Проверяем, не превышено ли максимальное количество файлов
+                    const maxFiles = requiredCount * 2; // Максимум в 2 раза больше требуемого
+                    if (files.length > maxFiles) {
+                        showError(`Вы загрузили слишком много файлов (${files.length}). Максимум ${maxFiles} файлов.`);
+                        document.getElementById('createCollageBtn').style.display = 'none';
+                        return;
+                    }
+
+                    // Очищаем ошибку
+                    hideError();
+
+                    // Обновляем список файлов
+                    uploadedFiles = files;
+                    originalFiles = [...uploadedFiles]; // Сохраняем оригинальные файлы
+
+                    // Обновляем счетчик
+                    const currentCountElement = document.getElementById('currentCount');
+                    if (currentCountElement) {
+                        currentCountElement.textContent = uploadedFiles.length;
+                    }
+
+                    // Обновляем текст в загрузочной области
+                    document.getElementById('fileCount').textContent = `загружено ${uploadedFiles.length}/${requiredCount} файлов`;
+
+                    // Проверяем состояние кнопки создания
+                    checkCreateButtonState();
+                };
+                fileInput.click();
+            });
+        }
+
+        // Обработчик создания коллажа
         document.getElementById('createCollageBtn').addEventListener('click', function() {
+            // Проверяем, что сетка и размер выбраны
+            if (!selectedGrid || !selectedSize) {
+                showError('Пожалуйста, выберите сетку и размер для создания коллажа.');
+                return;
+            }
+
+            // Проверяем количество файлов
             if (uploadedFiles.length > requiredCount) {
                 showError(`Упс, вы загрузили слишком много файлов (${uploadedFiles.length}). Пожалуйста, загрузите не более ${requiredCount} файлов.`);
                 return;
             }
+
             if (uploadedFiles.length >= requiredCount) {
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('createCollageBtn').disabled = true;
 
-                // Отправляем данные на сервер
+                // Исправленная отправка данных с правильными параметрами
+                const mediaData = uploadedFiles.map(f => ({
+                    url: URL.createObjectURL(f),
+                    type: f.type.startsWith('image') ? 'photo' : 'video'
+                }));
+
                 fetch("https://silent-squids-shout.loca.lt/create-collage", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
                     body: JSON.stringify({
                         grid: selectedGrid,
                         size: selectedSize,
-                        media: uploadedFiles.map(f => ({
-                            url: URL.createObjectURL(f),   // для теста локально
-                            type: f.type.startsWith("video/") ? "video" : "photo"
-                        }))
+                        media: mediaData,
+                        chat_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || null
                     })
                 })
-                console.log("Отправляем данные:", { grid: selectedGrid, size: selectedSize, files: uploadedFiles.length });
-
-                .then(res => res.json())
+                .then(response => response.json())
                 .then(data => {
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('createCollageBtn').disabled = false;
 
                     if (data.status === "success") {
                         collageUrl = data.url;
-
-                        // Отправляем результат обратно в бота
-                        if (window.Telegram && Telegram.WebApp) {
-                            Telegram.WebApp.sendData(JSON.stringify({
-                                type: "collage_result",
-                                url: collageUrl
-                            }));
-                        }
-
-                        showStep(4);
-                        displayCollage();
+                        // Отображаем результат
+                        document.getElementById('step4').classList.add('active');
+                        // Используем URL для скачивания
+                        document.getElementById('collagePreview').innerHTML = `
+                            <div class="result-message">
+                                <p>✅ Коллаж успешно создан!</p>
+                                <p><a href="${data.url}" target="_blank">Скачать коллаж</a></p>
+                                <button onclick="downloadCollage()" class="create-button">Скачать</button>
+                                <button onclick="sendToBot()" class="create-button">Отправить в бот</button>
+                            </div>
+                        `;
                     } else {
                         showError("Ошибка при создании коллажа: " + data.message);
                     }
@@ -637,10 +739,29 @@
             }
         });
 
-        // Функция отображения коллажа
+        // Функция отправки в бот
+        function sendToBot() {
+            alert('Файл будет отправлен в бот. Пожалуйста, используйте кнопку "Отправить в бот" в Telegram.');
+            // Для тестирования можно просто открыть ссылку
+            // window.open('https://t.me/ваш_бот_username?start=collage_' + Date.now(), '_blank');
+        }
+
+        // Функция для перехода между шагами
+        function showStep(stepNumber) {
+            // Скрыть все шаги
+            document.querySelectorAll('.step-container').forEach(step => {
+                step.classList.remove('active');
+            });
+
+            // Показать нужный шаг
+            document.getElementById('step' + stepNumber).classList.add('active');
+        }
+
+        // Функция отображения коллажа (упрощенная)
         function displayCollage() {
             const preview = document.getElementById('collagePreview');
             preview.innerHTML = '';
+
             // Проверяем, что у нас есть файлы
             if (!uploadedFiles || uploadedFiles.length === 0) {
                 preview.innerHTML = '<p style="text-align:center; color:red;">Нет файлов для отображения</p>';
@@ -953,174 +1074,41 @@
                         }
                     }
                 }
-            } else {
-                // По умолчанию 2x2
-                const cols = 2, rows = 2;
-                const cellWidth = 100 / cols;
-                const cellHeight = 100 / rows;
-                for (let r = 0; r < rows; r++) {
-                    for (let c = 0; c < cols; c++) {
-                        const idx = r * cols + c;
-                        if (idx < uploadedFiles.length) {
-                            const file = uploadedFiles[idx];
-                            const div = document.createElement('div');
-                            div.style.position = 'absolute';
-                            div.style.width = `${cellWidth}%`;
-                            div.style.height = `${cellHeight}%`;
-                            div.style.left = `${c * cellWidth}%`;
-                            div.style.top = `${r * cellHeight}%`;
-                            div.style.border = '1px solid rgba(255,255,255,0.3)';
-                            div.style.overflow = 'hidden';
-                            if (file.type.startsWith('image/')) {
-                                const img = document.createElement('img');
-                                img.src = URL.createObjectURL(file);
-                                img.style.width = '100%';
-                                img.style.height = '100%';
-                                img.style.objectFit = 'cover';
-                                div.appendChild(img);
-                            } else if (file.type.startsWith('video/')) {
-                                const video = document.createElement('video');
-                                video.src = URL.createObjectURL(file);
-                                video.controls = false;
-                                video.autoplay = true;
-                                video.loop = true;
-                                video.muted = true;
-                                video.style.width = '100%';
-                                video.style.height = '100%';
-                                video.style.objectFit = 'cover';
-                                div.appendChild(video);
-                            }
-                            preview.appendChild(div);
-                        } else {
-                            // Пустая ячейка (черная)
-                            const div = document.createElement('div');
-                            div.style.position = 'absolute';
-                            div.style.width = `${cellWidth}%`;
-                            div.style.height = `${cellHeight}%`;
-                            div.style.left = `${c * cellWidth}%`;
-                            div.style.top = `${r * cellHeight}%`;
-                            div.style.backgroundColor = '#000';
-                            div.style.border = '1px solid rgba(255,255,255,0.3)';
-                            preview.appendChild(div);
-                        }
+            }
+            const cellWidth = 100 / cols;
+            const cellHeight = 100 / rows;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const idx = r * cols + c;
+                    if (idx < uploadedFiles.length) {
+                        const file = uploadedFiles[idx];
+                        const url = URL.createObjectURL(file);
+                        const type = file.type.startsWith('image') ? 'img' : 'video';
+                        const element = document.createElement(type === 'img' ? 'img' : 'video');
+                        element.src = url;
+                        element.style.width = `${cellWidth}%`;
+                        element.style.height = `${cellHeight}%`;
+                        element.style.objectFit = 'cover';
+                        element.style.position = 'absolute';
+                        element.style.left = `${c * cellWidth}%`;
+                        element.style.top = `${r * cellHeight}%`;
+                        element.controls = type === 'video'; // Добавляем controls для видео
+                        preview.appendChild(element);
+                    } else {
+                        // Добавляем пустой блок для заполнения
+                        const emptyCell = document.createElement('div');
+                        emptyCell.style.width = `${cellWidth}%`;
+                        emptyCell.style.height = `${cellHeight}%`;
+                        emptyCell.style.position = 'absolute';
+                        emptyCell.style.left = `${c * cellWidth}%`;
+                        emptyCell.style.top = `${r * cellHeight}%`;
+                        emptyCell.style.backgroundColor = '#f0f0f0';
+                        preview.appendChild(emptyCell);
                     }
                 }
             }
-            // Устанавливаем ссылку для скачивания
-            window.downloadCollage = function() {
-                // В реальном приложении здесь будет ссылка на скачивание
-                alert('Коллаж готов! В реальном приложении здесь будет ссылка на скачивание.');
-            };
         }
-        // Функция скачивания коллажа
-        function downloadCollage() {
-            // В реальном приложении здесь будет ссылка на скачивание
-            alert('Коллаж готов! В реальном приложении здесь будет ссылка на скачивание.');
-        }
-        // Функция нового коллажа
-        function newCollage() {
-            // Сброс данных
-            selectedGrid = '';
-            selectedSize = '';
-            uploadedFiles = [];
-            originalFiles = [];
-            requiredCount = 4;
-            collageUrl = '';
-            // Сброс интерфейса
-            document.querySelectorAll('.grid-option').forEach(el => el.classList.remove('selected'));
-            document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
-            document.getElementById('fileCount').textContent = 'загружено 0/4 файлов';
-            document.getElementById('createCollageBtn').style.display = 'none';
-            document.getElementById('collagePreview').innerHTML = '';
-            // Очищаем ошибку
-            hideError();
-            // Возврат к первому шагу
-            document.getElementById('step4').classList.remove('active');
-            document.getElementById('createCollageBtn').style.display = 'block';
-        }
-        // Инициализация
-        document.querySelector('.grid-option').classList.add('selected');
-        document.querySelector('.size-option').classList.add('selected');
-        updateFileCounter();
-        // Функция обновления счетчика файлов
-        function updateFileCounter() {
-            const fileCount = document.getElementById('fileCount');
-            const maxFiles = getRequiredCount(selectedGrid);
-            fileCount.textContent = `загружено ${uploadedFiles.length}/${maxFiles} файлов`;
-        }
-
-        // Отправка данных на сервер
-        document.getElementById('createCollageBtn').addEventListener('click', function() {
-            if (uploadedFiles.length > requiredCount) {
-                showError(`Упс, вы загрузили слишком много файлов (${uploadedFiles.length}). Пожалуйста, загрузите не более ${requiredCount} файлов.`);
-                return;
-            }
-            if (uploadedFiles.length >= requiredCount) {
-                document.getElementById('loading').style.display = 'block';
-                document.getElementById('createCollageBtn').disabled = true;
-                // Отправляем данные на сервер
-                fetch("https://silent-squids-shout.loca.lt/create-collage", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        grid: selectedGrid,
-                        size: selectedSize,
-                        media: uploadedFiles.map(f => ({
-                            url: URL.createObjectURL(f),
-                            type: f.type.startsWith("video/") ? "video" : "photo"
-                        }))
-                    })
-                })
-                .then(res => {
-                    console.log("Отправляем данные:", { grid: selectedGrid, size: selectedSize, files: uploadedFiles.length });
-                    return res.json();
-                })
-                .then(data => {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('createCollageBtn').disabled = false;
-                    if (data.status === "success") {
-                        collageUrl = data.url;
-                        // Отправляем результат обратно в бота
-                        if (window.Telegram && Telegram.WebApp) {
-                            Telegram.WebApp.sendData(JSON.stringify({
-                                type: "collage_result",
-                                url: collageUrl
-                            }));
-                        }
-                        showStep(4);
-                        displayCollage();
-                    } else {
-                        showError("Ошибка при создании коллажа: " + data.message);
-                    }
-                })
-                .catch(err => {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('createCollageBtn').disabled = false;
-                    showError("Ошибка соединения с сервером: " + err.message);
-                });
-            }
-        });
-
-                // Отправка данных на сервер через Telegram
-                const telegramData = {
-                    type: 'collage_result',
-                    grid: selectedGrid,
-                    size: selectedSize,
-                    url: 'https://silent-squids-shout.loca.lt' + Math.random().toString(36).substring(7) + '.mp4'
-                };
-
-                // Имитация отправки через Telegram
-                setTimeout(() => {
-                    // Скрываем загрузку
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('createCollageBtn').disabled = false;
-                    // Показываем результат
-                    showStep(4);
-                    // Отображаем коллаж
-                    displayCollage();
-                }, 2000);
-            }
-        });
     </script>
 </body>
 </html>
